@@ -1,6 +1,6 @@
-government_type: state,
-name: Georgia,
-abbreviation: GA,
-website: http://ssl.doas.state.ga.us/PRSapp/PR_index.jsp,
-feed: false,
+government_type: state
+name: Georgia
+abbreviation: GA
+website: http://ssl.doas.state.ga.us/PRSapp/PR_index.jsp
+feed: false
 last_updated: 2014-02-21 00:00:01
