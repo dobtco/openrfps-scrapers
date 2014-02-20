@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>rfps.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>rfps.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Require the necessary modules.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>request = <span class="hljs-built_in">require</span> <span class="hljs-string">'request'</span>
+cheerio = <span class="hljs-built_in">require</span> <span class="hljs-string">'cheerio'</span>
+async = <span class="hljs-built_in">require</span> <span class="hljs-string">'async'</span>
+_ = <span class="hljs-built_in">require</span> <span class="hljs-string">'underscore'</span>
+<span class="hljs-built_in">require</span> <span class="hljs-string">'colors'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Set up some constants that we’ll use later.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>FILTER_PARAMS =
+  <span class="hljs-attribute">track</span>: <span class="hljs-string">''</span>
+  <span class="hljs-attribute">bidResponse</span>: <span class="hljs-string">'all'</span>
+  <span class="hljs-attribute">theType</span>: <span class="hljs-string">'OPEN'</span>
+  <span class="hljs-attribute">govType</span>: <span class="hljs-string">'state'</span>
+  <span class="hljs-attribute">theAgency</span>: <span class="hljs-string">'all'</span>
+  <span class="hljs-attribute">theWord</span>: <span class="hljs-string">''</span>
+  <span class="hljs-attribute">theSort</span>: <span class="hljs-string">'BID NUMBER'</span>
+
+BASIC_PARAMS =
+  <span class="hljs-attribute">title</span>: <span class="hljs-string">'Bid Title'</span>
+  <span class="hljs-attribute">contact_name</span>: <span class="hljs-string">'Contact Person'</span>
+  <span class="hljs-attribute">contact_phone</span>: <span class="hljs-string">'Contact Phone Number'</span>
+  <span class="hljs-attribute">contact_email</span>: <span class="hljs-string">'Contact E-mail Address'</span>
+  <span class="hljs-attribute">created_at</span>: <span class="hljs-string">'Date Posted'</span>
+  <span class="hljs-attribute">updated_at</span>: <span class="hljs-string">'Last Revision Date'</span>
+
+MAINTENANCE_BASIC_PARAMS =
+  <span class="hljs-attribute">title</span>: <span class="hljs-string">'eSource Title'</span>
+  <span class="hljs-attribute">description</span>: <span class="hljs-string">'eSource Description'</span>
+  <span class="hljs-attribute">contact_name</span>: <span class="hljs-string">'Contact Name'</span>
+  <span class="hljs-attribute">contact_phone</span>: <span class="hljs-string">'Contact Phone'</span>
+  <span class="hljs-attribute">contact_email</span>: <span class="hljs-string">'Contact Email'</span>
+  <span class="hljs-attribute">created_at</span>: <span class="hljs-string">'eSource Released Date'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>We’ll export one function, that takes two parameters: an options hash,
+and a callback that must be executed once we’re done scraping.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">module</span>.<span class="hljs-function"><span class="hljs-title">exports</span> = <span class="hljs-params">(opts, done)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Set up an empty array for our RFPs.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  rfps = []</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Send a POST request to the site’s endpoint. Why we’re POSTing to read data, you’ll have to tell me…</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  request.post <span class="hljs-string">'http://ssl.doas.state.ga.us/PRSapp/PublicBidDisplay'</span>, <span class="hljs-attribute">form</span>: FILTER_PARAMS, <span class="hljs-function"><span class="hljs-params">(err, response, body)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Load the resulting HTML into Cheerio, a jQuery-like DOM parser.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    $ = cheerio.load body</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Do some pretty standard DOM-traversal to grab the ID and URL for each RFP.
+We just need to get this preliminary information — we’ll scrape for the details later.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    $<span class="hljs-function"><span class="hljs-params">(<span class="hljs-string">'table'</span>)</span>.<span class="hljs-title">eq</span><span class="hljs-params">(<span class="hljs-number">3</span>)</span>.<span class="hljs-title">find</span><span class="hljs-params">(<span class="hljs-string">'tr'</span>)</span>.<span class="hljs-title">each</span> <span class="hljs-params">(i, el)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> i == <span class="hljs-number">0</span>
+
+      rfps.push {
+        <span class="hljs-attribute">id</span>: $(@).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">0</span>).find(<span class="hljs-string">'a'</span>).text(),
+        <span class="hljs-attribute">html_url</span>: <span class="hljs-string">"http://ssl.doas.state.ga.us/PRSapp/<span class="hljs-subst">#{$(@).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">0</span>).find(<span class="hljs-string">'a'</span>).attr(<span class="hljs-string">'href'</span>)}</span>"</span>
+      }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>If the user has indicated they want to limit the number of results (via the —limit flag),
+use Underscore’s _.first to make it so.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> opts.limit &gt; <span class="hljs-number">0</span>
+      rfps = _.first(rfps, opts.limit)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Using the async library, we’ll make up to 5 concurrent requests to the procurement site.
+We call the getRfpDetails() function for each one.
+Once we’re done, we call the done() function that was passed to us back in the <code>module.exports</code> definition.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    async.eachLimit rfps, <span class="hljs-number">5</span>, getRfpDetails, <span class="hljs-function"><span class="hljs-params">(err)</span> -&gt;</span>
+      <span class="hljs-built_in">console</span>.log(err.red) <span class="hljs-keyword">if</span> err
+      done rfps</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>A function for scraping the details from an RFP page. It’s just more DOM-traversal,
+so it should look familiar by now.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-title">getRfpDetails</span> = <span class="hljs-params">(item, cb)</span> -&gt;</span>
+    <span class="hljs-keyword">return</span> getMaintenanceRfpDetails(item, cb) <span class="hljs-keyword">if</span> item.html_url.match <span class="hljs-string">'maintanence'</span>
+
+    request.get item.html_url, <span class="hljs-function"><span class="hljs-params">(err, response, body)</span> -&gt;</span>
+      $ = cheerio.load body
+      $table = $(<span class="hljs-string">'table'</span>).eq(<span class="hljs-number">1</span>)
+
+      <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">of</span> BASIC_PARAMS
+        item[k] = $table.find(<span class="hljs-string">"tr:contains(<span class="hljs-subst">#{v}</span>)"</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">3</span>).text()
+
+      item.external_url = $table.find(<span class="hljs-string">'a:contains(Link to Agency Site)'</span>).attr(<span class="hljs-string">'href'</span>)
+      item.description = $(<span class="hljs-string">'[name=bidD]'</span>).val()
+      item.prebid_conferences = []
+
+      <span class="hljs-keyword">if</span> $(<span class="hljs-string">'body'</span>).text().match <span class="hljs-regexp">/prebid/i</span>
+        $table2 = $(<span class="hljs-string">'table'</span>).eq(<span class="hljs-number">2</span>)
+
+        item.prebid_conferences.push {
+          <span class="hljs-attribute">attendance_mandatory</span>: <span class="hljs-keyword">if</span> $table2.find(<span class="hljs-string">'tr:contains(Prebid Conference Attendance)'</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text().match(<span class="hljs-string">'Mandatory'</span>) <span class="hljs-keyword">then</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">else</span> <span class="hljs-literal">false</span>
+          <span class="hljs-attribute">datetime</span>: $table2.find(<span class="hljs-string">'tr:contains(Prebid Conference Date/Time)'</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text()
+          <span class="hljs-attribute">address</span>: $table2.find(<span class="hljs-string">'tr:contains(Prebid Location)'</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text() + <span class="hljs-string">"\n"</span> +
+                   $table2.find(<span class="hljs-string">'tr:contains(Prebid Street)'</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text() + <span class="hljs-string">"\n"</span> +
+                   $table2.find(<span class="hljs-string">'tr:contains(Prebid City)'</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text() + <span class="hljs-string">", "</span> +
+                   $table2.find(<span class="hljs-string">'tr:contains(Prebid State)'</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text() + <span class="hljs-string">" "</span> +
+                   $table2.find(<span class="hljs-string">'tr:contains(Prebid Zip Code)'</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text()
+        }
+
+      item.industry_codes = { <span class="hljs-attribute">nigp</span>: [] }
+      $(<span class="hljs-string">'h2:contains(NIGP codes assigned to bid)'</span>).next(<span class="hljs-string">'table'</span>).find(<span class="hljs-string">'a'</span>).each<span class="hljs-function"> -&gt;</span>
+        item.industry_codes.nigp.push $(@).text()
+
+      item.downloads = []
+      $(<span class="hljs-string">'h2:contains(Documents)'</span>).nextAll().filter( (<span class="hljs-function">-&gt;</span> $(@).<span class="hljs-keyword">is</span>(<span class="hljs-string">'table'</span>)) ).eq(<span class="hljs-number">0</span>).find(<span class="hljs-string">'a'</span>).each<span class="hljs-function"> -&gt;</span>
+        item.downloads.push $(@).attr(<span class="hljs-string">'href'</span>)
+
+      <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Successfully downloaded <span class="hljs-subst">#{item.title}</span>"</span>.green
+
+      cb()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Maintenance RFPs have a different layout than the other RFPs.
+See <a href="http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&amp;source=publicViewQuote">http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&amp;source=publicViewQuote</a> for an example.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-title">getMaintenanceRfpDetails</span> = <span class="hljs-params">(item, cb)</span> -&gt;</span>
+    request.get item.html_url, <span class="hljs-function"><span class="hljs-params">(err, response, body)</span> -&gt;</span>
+      $ = cheerio.load body
+      $table = $(<span class="hljs-string">'table'</span>).eq(<span class="hljs-number">3</span>)
+
+      <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">of</span> MAINTENANCE_BASIC_PARAMS
+        item[k] = $table.find(<span class="hljs-string">"tr:contains(<span class="hljs-subst">#{v}</span>)"</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text()
+
+      item.industry_codes =
+        <span class="hljs-attribute">nigp</span>: $table.find(<span class="hljs-string">"tr:contains(NIGP Code Selection)"</span>).find(<span class="hljs-string">'td'</span>).eq(<span class="hljs-number">1</span>).text().match(<span class="hljs-regexp">/(\d+)/ig</span>)
+
+      cb()</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
