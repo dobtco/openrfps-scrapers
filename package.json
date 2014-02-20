@@ -1,0 +1,31 @@
+{
+  "name": "OpenRFPs",
+  "version": "0.0.0",
+  "description": "Scraping government contracting opportunities.",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dobtco/openrfps.git"
+  },
+  "keywords": [
+    "rfps",
+    "contracts",
+    "awards"
+  ],
+  "author": "Department of Better Technology",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dobtco/openrfps/issues"
+  },
+  "homepage": "https://github.com/dobtco/openrfps",
+  "dependencies": {
+    "coffee-script": "~1.7.1",
+    "commander": "~2.1.0",
+    "colors": "~0.6.2",
+    "mocha": "~1.17.1",
+    "underscore": "~1.6.0"
+  }
+}
