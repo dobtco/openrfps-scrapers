@@ -5,6 +5,23 @@ _ = require 'underscore'
 
 require 'colors'
 
+FILTER_PARAMS =
+  track: ''
+  bidResponse: 'all'
+  theType: 'OPEN'
+  govType: 'state'
+  theAgency: 'all'
+  theWord: ''
+  theSort: 'BID NUMBER'
+
+BASIC_PARAMS =
+  title: 'Bid Title'
+  contact_name: 'Contact Person'
+  contact_phone: 'Contact Phone Number'
+  contact_email: 'Contact E-mail Address'
+  created_at: 'Date Posted'
+  updated_at: 'Last Revision Date'
+
 module.exports = (opts, done) ->
   getRfpDetails = (item, cb) ->
     # Don't process maintenance yet
@@ -15,12 +32,9 @@ module.exports = (opts, done) ->
       $ = cheerio.load body
       $table = $('table').eq(1)
 
-      item.title = $table.find('tr:contains(Bid Title)').find('td').eq(3).text()
-      item.contact_name = $table.find('tr:contains(Contact Person)').find('td').eq(3).text()
-      item.contact_phone = $table.find('tr:contains(Contact Phone Number)').find('td').eq(3).text()
-      item.contact_email = $table.find('tr:contains(Contact E-mail Address)').find('td').eq(3).text()
-      item.created_at = $table.find('tr:contains(Date Posted)').find('td').eq(3).text()
-      item.updated_at = $table.find('tr:contains(Last Revision Date)').find('td').eq(3).text()
+      for k, v of BASIC_PARAMS
+        item[k] = $table.find("tr:contains(#{v})").find('td').eq(3).text()
+
       item.external_url = $table.find('a:contains(Link to Agency Site)').attr('href')
       item.description = $('[name=bidD]').val()
       item.prebid_conferences = []
@@ -52,16 +66,7 @@ module.exports = (opts, done) ->
 
   rfps = []
 
-  request.post 'http://ssl.doas.state.ga.us/PRSapp/PublicBidDisplay',
-    form:
-      track: ''
-      bidResponse: 'all'
-      theType: 'OPEN'
-      govType: 'all'
-      theAgency: 'all'
-      theWord: ''
-      theSort: 'BID NUMBER'
-  , (err, response, body) ->
+  request.post 'http://ssl.doas.state.ga.us/PRSapp/PublicBidDisplay', form: FILTER_PARAMS, (err, response, body) ->
     $ = cheerio.load body
 
     $('table').eq(3).find('tr').each (i, el) ->
