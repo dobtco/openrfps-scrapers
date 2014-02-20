@@ -2,7 +2,11 @@ module.exports = ->
 
   [
     {
-      id: 123
+      id: '1'
       name: 'Foobar'
+    },
+    {
+      id: '3'
+      name: 'bazbaz'
     }
   ]
