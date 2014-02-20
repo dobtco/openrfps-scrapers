@@ -7,19 +7,24 @@ _ = require 'underscore'
 program
   .parse(process.argv)
 
-return unless (parsedJson = require('./utils/parse')(program))
-
 test = (msg, testFunc) ->
   console.log "#{msg}: ".yellow + (if testFunc() then "OK".green else "Not OK".red)
 
-test 'The scraper returns at least one result', ->
-  (typeof parsedJson == 'object') && !_.isEmpty(parsedJson)
 
-test 'an ID attribute is returned', ->
-  parsedJson[0] && parsedJson[0]['id']
+require('./utils/parse') program, (parsedJson) ->
 
-test 'the ID attribute is unique', ->
-  pluckedIds = _.pluck(parsedJson, 'id')
-  uniqIds = _.uniq(pluckedIds)
+  return unless parsedJson
 
-  _.isEqual(pluckedIds, uniqIds)
+  test 'The scraper returns at least one result', ->
+    (typeof parsedJson == 'object') && !_.isEmpty(parsedJson)
+
+  test 'an ID attribute is returned', ->
+    parsedJson[0] && parsedJson[0]['id']
+
+  test 'the ID attribute is unique', ->
+    return false unless parsedJson[0]
+
+    pluckedIds = _.pluck(parsedJson, 'id')
+    uniqIds = _.uniq(pluckedIds)
+
+    _.isEqual(pluckedIds, uniqIds)

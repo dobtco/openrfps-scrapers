@@ -1,6 +1,6 @@
 require 'colors'
 
-module.exports = (program) ->
+module.exports = (program, cb) ->
 
   fail = (msg, error) ->
     console.log "#{msg}".red
@@ -15,8 +15,7 @@ module.exports = (program) ->
     return fail("Couldn't find that scraper", error)
 
   try
-    parsedJson = scraper()
+    scraper (parsedJson) ->
+      cb(parsedJson)
   catch error
     return fail("Error during scraping", error)
-
-  parsedJson

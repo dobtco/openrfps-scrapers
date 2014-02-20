@@ -26,6 +26,7 @@
     "commander": "~2.1.0",
     "colors": "~0.6.2",
     "mocha": "~1.17.1",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "zombie": "~2.0.0-alpha29"
   }
 }

@@ -1,12 +1,11 @@
-module.exports = ->
+Browser = require 'zombie'
 
-  [
-    {
-      id: '1'
-      name: 'Foobar'
-    },
-    {
-      id: '3'
-      name: 'bazbaz'
-    }
-  ]
+module.exports = (done) ->
+
+  browser = new Browser()
+
+  browser
+    .visit('http://ssl.doas.state.ga.us/PRSapp/PR_index.jsp')
+    .then ->
+      console.log browser.text()
+      done []

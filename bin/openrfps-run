@@ -8,12 +8,14 @@ program
   .option('-s, --save', 'save to .json relative to scraper file')
   .parse(process.argv)
 
-return unless (parsedJson = require('./utils/parse')(program))
+require('./utils/parse') program, (parsedJson) ->
 
-if program.save
-  writePath = program.args[0].replace(/\.coffee$/, '.json')
-  fs.writeFileSync writePath, JSON.stringify(parsedJson, null, 2)
-  console.log "Wrote output to #{writePath}."
-else
-  console.log "The results were:"
-  console.log JSON.stringify(parsedJson, null, 2)
+  return unless parsedJson
+
+  if program.save
+    writePath = program.args[0].replace(/\.coffee$/, '.json')
+    fs.writeFileSync writePath, JSON.stringify(parsedJson, null, 2)
+    console.log "Wrote output to #{writePath}."
+  else
+    console.log "The results were:"
+    console.log JSON.stringify(parsedJson, null, 2)
