@@ -10,7 +10,7 @@ program
 return unless (parsedJson = require('./utils/parse')(program))
 
 test = (msg, testFunc) ->
-  console.log "#{msg}: " + (if testFunc() then "OK".green else "Not OK".red)
+  console.log "#{msg}: ".yellow + (if testFunc() then "OK".green else "Not OK".red)
 
 test 'The scraper returns at least one result', ->
   (typeof parsedJson == 'object') && !_.isEmpty(parsedJson)
