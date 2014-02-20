@@ -1,6 +1,6 @@
-## The Open RFP Project
+## The Open RFPs Project
 
-The OpenRFP Project is modeled after Sunlight Labs' [OpenStates](https://github.com/sunlightlabs/openstates/tree/master/openstates) project. It collects and makes available data about contracting activities, including RFP listings as well as awards, and makes that information available in a standard format.
+The Open RFPs Project is modeled after Sunlight Labs' [OpenStates](https://github.com/sunlightlabs/openstates/tree/master/openstates). Open RFPs collects and makes available data about contracting activities, including RFP listings as well as awards, and makes that information available in a standardized format.
 
 ## Contribution Guidelines
 At present, the project is just focused on building scrapers, and getting that data into JSON format. 
