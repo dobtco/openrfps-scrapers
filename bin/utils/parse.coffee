@@ -6,6 +6,9 @@ module.exports = (program) ->
     console.log "#{msg}".red
     console.log error
 
+  if !program.args[0]
+    return console.log "You must provide a <file>".red
+
   try
     scraper = require('../../' + program.args[0])
   catch error
