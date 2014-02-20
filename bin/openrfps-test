@@ -11,7 +11,7 @@ EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(
 URL_REGEX = /^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/
 
 program
-  .option('-s, --skipsave', 'Save to .json relative to scraper file')
+  .option('-s, --skipsave', "Don't cache results to .json file")
   .option('-l, --limit <n>', 'Stop after processing <n> results [10]', parseInt, 10)
   .option('-f, --force', "Force re-scraping (by default, we'll try to test against the cached .json files)")
   .parse(process.argv)

@@ -5,7 +5,7 @@ fs = require 'fs'
 colors = require 'colors'
 
 program
-  .option('-s, --skipsave', 'Save to .json relative to scraper file')
+  .option('-s, --skipsave', "Don't cache results to .json file")
   .option('-l, --limit <n>', 'Stop after processing <n> results', parseInt)
   .parse(process.argv)
 
