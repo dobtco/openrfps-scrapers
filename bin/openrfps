@@ -7,3 +7,6 @@ program
   .command('run <file>', 'run a scraper and output the results')
   .command('test <file>', 'test a scraper')
   .parse(process.argv)
+
+if program.args.length == 0
+  console.log "Please provide a command! Try '--help' for usage details."
