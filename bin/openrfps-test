@@ -10,23 +10,34 @@ program
   .option('-f, --force', "Force re-scraping (by default, we'll try to test against the cached .json files)")
   .parse(process.argv)
 
+failingTests = 0
+
 runAssertion = (msg, testFunc) ->
-  console.log "#{msg}: ".yellow + (if testFunc() then "OK".green else "Not OK".red)
+  if testFunc()
+    console.log "#{msg}: ".yellow + "OK".green
+  else
+    console.log "#{msg}: ".yellow + "Not OK".red
+    failingTests += 1
 
 require('./utils/run_scraper') program, (parsedJson) ->
 
   return unless parsedJson
 
-  runAssertion 'The scraper returns at least one result', ->
+  runAssertion 'Scraper returns at least one result', ->
     (typeof parsedJson == 'object') && !_.isEmpty(parsedJson)
 
-  runAssertion 'an ID attribute is returned', ->
-    parsedJson[0] && parsedJson[0]['id']
+  runAssertion 'ID attribute is returned for all items', ->
+    !_.isEmpty(parsedJson) && !_.find(parsedJson, ( (item) -> !item.id) )
 
-  runAssertion 'the ID attribute is unique', ->
-    return false unless parsedJson[0]
-
+  runAssertion 'ID attribute is unique for each item', ->
     pluckedIds = _.pluck(parsedJson, 'id')
     uniqIds = _.uniq(pluckedIds)
+    !_.isEmpty(parsedJson) && _.isEqual(pluckedIds, uniqIds)
 
-    _.isEqual(pluckedIds, uniqIds)
+  runAssertion 'Title is returned for all items', ->
+    !_.isEmpty(parsedJson) && !_.find(parsedJson, ( (item) -> !item.title) )
+
+  if failingTests > 0
+    process.exit(1)
+  else
+    process.exit(0)
