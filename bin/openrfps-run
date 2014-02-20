@@ -14,7 +14,7 @@ require('./utils/parse') program, (parsedJson) ->
   return unless parsedJson
 
   if program.save
-    writePath = program.args[0].replace(/\.coffee$/, '.json')
+    writePath = program.args[0].replace(/coffee$/, 'json')
     fs.writeFileSync writePath, JSON.stringify(parsedJson, null, 2)
     console.log "Wrote output to #{writePath}."
   else

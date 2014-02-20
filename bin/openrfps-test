@@ -5,23 +5,24 @@ colors = require 'colors'
 _ = require 'underscore'
 
 program
-  .option('-l, --limit <n>', 'Stop after processing <n> results', parseInt)
+  .option('-l, --limit <n>', 'Stop after processing <n> results [10]', parseInt, 10)
+  .option('-f, --force', "Force re-scraping (by default, we'll try to test against the cached .json files)")
   .parse(process.argv)
 
-test = (msg, testFunc) ->
+runAssertion = (msg, testFunc) ->
   console.log "#{msg}: ".yellow + (if testFunc() then "OK".green else "Not OK".red)
 
 require('./utils/parse') program, (parsedJson) ->
 
   return unless parsedJson
 
-  test 'The scraper returns at least one result', ->
+  runAssertion 'The scraper returns at least one result', ->
     (typeof parsedJson == 'object') && !_.isEmpty(parsedJson)
 
-  test 'an ID attribute is returned', ->
+  runAssertion 'an ID attribute is returned', ->
     parsedJson[0] && parsedJson[0]['id']
 
-  test 'the ID attribute is unique', ->
+  runAssertion 'the ID attribute is unique', ->
     return false unless parsedJson[0]
 
     pluckedIds = _.pluck(parsedJson, 'id')
