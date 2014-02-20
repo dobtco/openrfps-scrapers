@@ -5,7 +5,8 @@ fs = require 'fs'
 colors = require 'colors'
 
 program
-  .option('-s, --save', 'save to .json relative to scraper file')
+  .option('-s, --save', 'Save to .json relative to scraper file')
+  .option('-l, --limit <n>', 'Stop after processing <n> results', parseInt)
   .parse(process.argv)
 
 require('./utils/parse') program, (parsedJson) ->

@@ -5,11 +5,11 @@ colors = require 'colors'
 _ = require 'underscore'
 
 program
+  .option('-l, --limit <n>', 'Stop after processing <n> results', parseInt)
   .parse(process.argv)
 
 test = (msg, testFunc) ->
   console.log "#{msg}: ".yellow + (if testFunc() then "OK".green else "Not OK".red)
-
 
 require('./utils/parse') program, (parsedJson) ->
 

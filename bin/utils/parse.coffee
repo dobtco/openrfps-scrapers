@@ -15,7 +15,11 @@ module.exports = (program, cb) ->
     return fail("Couldn't find that scraper", error)
 
   try
-    scraper (parsedJson) ->
+    opts = {
+      limit: program.limit
+    }
+
+    scraper opts, (parsedJson) ->
       cb(parsedJson)
   catch error
     return fail("Error during scraping", error)
