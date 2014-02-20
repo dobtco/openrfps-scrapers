@@ -1,10 +1,11 @@
+# Require the necessary modules.
 request = require 'request'
 cheerio = require 'cheerio'
 async = require 'async'
 _ = require 'underscore'
-
 require 'colors'
 
+# Set up some constants that we'll use later.
 FILTER_PARAMS =
   track: ''
   bidResponse: 'all'
@@ -30,9 +31,44 @@ MAINTENANCE_BASIC_PARAMS =
   contact_email: 'Contact Email'
   created_at: 'eSource Released Date'
 
+# We'll export one function, that takes two parameters: an options hash,
+# and a callback that must be executed once we're done scraping.
 module.exports = (opts, done) ->
+
+  # Set up an empty array for our RFPs.
+  rfps = []
+
+  # Send a POST request to the site's endpoint. Why we're POSTing to read data, you'll have to tell me...
+  request.post 'http://ssl.doas.state.ga.us/PRSapp/PublicBidDisplay', form: FILTER_PARAMS, (err, response, body) ->
+
+    # Load the resulting HTML into Cheerio, a jQuery-like DOM parser.
+    $ = cheerio.load body
+
+    # Do some pretty standard DOM-traversal to grab the ID and URL for each RFP.
+    # We just need to get this preliminary information -- we'll scrape for the details later.
+    $('table').eq(3).find('tr').each (i, el) ->
+      return if i == 0
+
+      rfps.push {
+        id: $(@).find('td').eq(0).find('a').text(),
+        html_url: "http://ssl.doas.state.ga.us/PRSapp/#{$(@).find('td').eq(0).find('a').attr('href')}"
+      }
+
+    # If the user has indicated they want to limit the number of results (via the --limit flag),
+    # use Underscore's _.first to make it so.
+    if opts.limit > 0
+      rfps = _.first(rfps, opts.limit)
+
+    # Using the async library, we'll make up to 5 concurrent requests to the procurement site.
+    # We call the getRfpDetails() function for each one.
+    # Once we're done, we call the done() function that was passed to us back in the `module.exports` definition.
+    async.eachLimit rfps, 5, getRfpDetails, (err) ->
+      console.log(err.red) if err
+      done rfps
+
+  # A function for scraping the details from an RFP page. It's just more DOM-traversal,
+  # so it should look familiar by now.
   getRfpDetails = (item, cb) ->
-    # Maintenance RFPs are different: http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&source=publicViewQuote
     return getMaintenanceRfpDetails(item, cb) if item.html_url.match 'maintanence'
 
     request.get item.html_url, (err, response, body) ->
@@ -71,6 +107,8 @@ module.exports = (opts, done) ->
 
       cb()
 
+  # Maintenance RFPs have a different layout than the other RFPs.
+  # See http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&source=publicViewQuote for an example.
   getMaintenanceRfpDetails = (item, cb) ->
     request.get item.html_url, (err, response, body) ->
       $ = cheerio.load body
@@ -84,22 +122,4 @@ module.exports = (opts, done) ->
 
       cb()
 
-  rfps = []
 
-  request.post 'http://ssl.doas.state.ga.us/PRSapp/PublicBidDisplay', form: FILTER_PARAMS, (err, response, body) ->
-    $ = cheerio.load body
-
-    $('table').eq(3).find('tr').each (i, el) ->
-      return if i == 0
-
-      rfps.push {
-        id: $(@).find('td').eq(0).find('a').text(),
-        html_url: "http://ssl.doas.state.ga.us/PRSapp/#{$(@).find('td').eq(0).find('a').attr('href')}"
-      }
-
-    if opts.limit > 0
-      rfps = _.first(rfps, opts.limit)
-
-    async.eachLimit rfps, 5, getRfpDetails, (err) ->
-      console.log(err.red) if err
-      done rfps
