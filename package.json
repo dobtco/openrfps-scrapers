@@ -27,6 +27,8 @@
     "colors": "~0.6.2",
     "mocha": "~1.17.1",
     "underscore": "~1.6.0",
-    "zombie": "~2.0.0-alpha29"
+    "cheerio": "~0.13.1",
+    "request": "~2.34.0",
+    "async": "~0.2.10"
   }
 }
