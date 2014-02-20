@@ -1,0 +1,33 @@
+#!/usr/bin/env coffee
+
+program = require 'commander'
+fs = require 'fs'
+colors = require 'colors'
+
+program
+  .option('-s, --save', 'save to .json relative to scraper file')
+  .parse(process.argv)
+
+fail = (msg, error) ->
+  console.log "#{msg}".red
+  console.log error
+
+try
+  scraper = require('../' + program.args[0])
+catch error
+  return fail("Couldn't find that scraper", error)
+
+try
+  parsedJson = scraper()
+catch error
+  return fail("Error during scraping", error)
+
+console.log "Scraping success!\n".green
+
+if program.save
+  writePath = program.args[0].replace(/\.coffee$/, '.json')
+  fs.writeFileSync writePath, JSON.stringify(parsedJson, null, 2)
+  console.log "Wrote output to #{writePath}."
+else
+  console.log "The results were:"
+  console.log JSON.stringify(parsedJson, null, 2)
