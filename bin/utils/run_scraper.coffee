@@ -21,13 +21,18 @@ module.exports = (program, cb) ->
 
   if !program.force && fs.existsSync(jsonPath)
     return cb(JSON.parse(fs.readFileSync(jsonPath)))
-  else
+
 
   try
     opts =
       limit: program.limit
 
     scraper opts, (parsedJson) ->
+      unless program.skipsave
+        writePath = program.args[0].replace(/coffee$/, 'json')
+        fs.writeFileSync writePath, JSON.stringify(parsedJson, null, 2)
+        console.log "Cached results to #{writePath}".green
+
       cb(parsedJson)
   catch error
     return fail("Error during scraping", error)

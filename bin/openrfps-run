@@ -5,18 +5,13 @@ fs = require 'fs'
 colors = require 'colors'
 
 program
-  .option('-s, --save', 'Save to .json relative to scraper file')
+  .option('-s, --skipsave', 'Save to .json relative to scraper file')
   .option('-l, --limit <n>', 'Stop after processing <n> results', parseInt)
   .parse(process.argv)
 
-require('./utils/parse') program, (parsedJson) ->
+program.force = true
+
+require('./utils/run_scraper') program, (parsedJson) ->
 
   return unless parsedJson
-
-  if program.save
-    writePath = program.args[0].replace(/coffee$/, 'json')
-    fs.writeFileSync writePath, JSON.stringify(parsedJson, null, 2)
-    console.log "Wrote output to #{writePath}."
-  else
-    console.log "The results were:"
-    console.log JSON.stringify(parsedJson, null, 2)
+  console.log JSON.stringify(parsedJson, null, 2)

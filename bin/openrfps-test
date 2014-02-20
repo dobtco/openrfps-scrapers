@@ -5,6 +5,7 @@ colors = require 'colors'
 _ = require 'underscore'
 
 program
+  .option('-s, --skipsave', 'Save to .json relative to scraper file')
   .option('-l, --limit <n>', 'Stop after processing <n> results [10]', parseInt, 10)
   .option('-f, --force', "Force re-scraping (by default, we'll try to test against the cached .json files)")
   .parse(process.argv)
@@ -12,7 +13,7 @@ program
 runAssertion = (msg, testFunc) ->
   console.log "#{msg}: ".yellow + (if testFunc() then "OK".green else "Not OK".red)
 
-require('./utils/parse') program, (parsedJson) ->
+require('./utils/run_scraper') program, (parsedJson) ->
 
   return unless parsedJson
 
