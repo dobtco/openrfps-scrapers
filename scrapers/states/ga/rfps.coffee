@@ -22,11 +22,18 @@ BASIC_PARAMS =
   created_at: 'Date Posted'
   updated_at: 'Last Revision Date'
 
+MAINTENANCE_BASIC_PARAMS =
+  title: 'eSource Title'
+  description: 'eSource Description'
+  contact_name: 'Contact Name'
+  contact_phone: 'Contact Phone'
+  contact_email: 'Contact Email'
+  created_at: 'eSource Released Date'
+
 module.exports = (opts, done) ->
   getRfpDetails = (item, cb) ->
-    # Don't process maintenance yet
-    # looks like: http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&source=publicViewQuote
-    return cb() if item.html_url.match 'maintanence'
+    # Maintenance RFPs are different: http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&source=publicViewQuote
+    return getMaintenanceRfpDetails(item, cb) if item.html_url.match 'maintanence'
 
     request.get item.html_url, (err, response, body) ->
       $ = cheerio.load body
@@ -61,6 +68,19 @@ module.exports = (opts, done) ->
         item.downloads.push $(@).attr('href')
 
       console.log "Successfully downloaded #{item.title}".green
+
+      cb()
+
+  getMaintenanceRfpDetails = (item, cb) ->
+    request.get item.html_url, (err, response, body) ->
+      $ = cheerio.load body
+      $table = $('table').eq(3)
+
+      for k, v of MAINTENANCE_BASIC_PARAMS
+        item[k] = $table.find("tr:contains(#{v})").find('td').eq(1).text()
+
+      item.industry_codes =
+        nigp: $table.find("tr:contains(NIGP Code Selection)").find('td').eq(1).text().match(/(\d+)/ig)
 
       cb()
 
