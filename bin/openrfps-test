@@ -4,6 +4,9 @@ program = require 'commander'
 colors = require 'colors'
 _ = require 'underscore'
 
+EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+URL_REGEX = /^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/
+
 program
   .option('-s, --skipsave', 'Save to .json relative to scraper file')
   .option('-l, --limit <n>', 'Stop after processing <n> results [10]', parseInt, 10)
@@ -19,25 +22,51 @@ runAssertion = (msg, testFunc) ->
     console.log "#{msg}: ".yellow + "Not OK".red
     failingTests += 1
 
-require('./utils/run_scraper') program, (parsedJson) ->
-
-  return unless parsedJson
-
-  runAssertion 'Scraper returns at least one result', ->
-    (typeof parsedJson == 'object') && !_.isEmpty(parsedJson)
-
-  runAssertion 'ID attribute is returned for all items', ->
-    !_.isEmpty(parsedJson) && !_.find(parsedJson, ( (item) -> !item.id) )
-
-  runAssertion 'ID attribute is unique for each item', ->
-    pluckedIds = _.pluck(parsedJson, 'id')
-    uniqIds = _.uniq(pluckedIds)
-    !_.isEmpty(parsedJson) && _.isEqual(pluckedIds, uniqIds)
-
-  runAssertion 'Title is returned for all items', ->
-    !_.isEmpty(parsedJson) && !_.find(parsedJson, ( (item) -> !item.title) )
-
+exitProperly = ->
   if failingTests > 0
     process.exit(1)
   else
     process.exit(0)
+
+require('./utils/run_scraper') program, (parsedJson) ->
+
+  return process.exit(1) unless parsedJson
+
+  runAssertion 'The scraper returns at least one result', ->
+    (typeof parsedJson == 'object') && !_.isEmpty(parsedJson)
+
+  runAssertion 'item.id is returned for all items', ->
+    !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
+      item.id
+
+  runAssertion 'item.contact_email is a proper address (or blank)', ->
+    !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
+      return true if !item.contact_email
+      item.contact_email.match(EMAIL_REGEX)
+
+  runAssertion 'download URLs are valid (or blank)', ->
+    !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
+      return true if _.isEmpty(item.downloads)
+      _.every item.downloads, (x) ->
+        x.match(URL_REGEX)
+
+  runAssertion 'item.id is unique for each item', ->
+    pluckedIds = _.pluck(parsedJson, 'id')
+    uniqIds = _.uniq(pluckedIds)
+    !_.isEmpty(parsedJson) && (pluckedIds.length == uniqIds.length)
+
+  runAssertion 'item.title is returned for all items', ->
+    !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
+      item.title
+
+  runAssertion "Industry codes are digits", ->
+    _.every parsedJson, (item) ->
+
+      return true if _.isEmpty(item.industry_codes)
+
+      if item.industry_codes.nigp
+        return _.every item.industry_codes.nigp, ( (x) -> x.match /^[0-9]+$/ )
+
+      return true
+
+  exitProperly()
