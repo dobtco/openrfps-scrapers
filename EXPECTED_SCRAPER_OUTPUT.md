@@ -6,7 +6,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 ### RFP
 
 | required? | key | description |
-| - | - | - |
+| --- | --- | --- |
 | ✔ | `id` | A unique identifier string |
 |   | `status` | Status of the RFP ([Valid statuses](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#valid-statuses)) |
 |   | `html_url` | A link to the RFP page |
@@ -25,7 +25,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 
 #### Conference
 | required? | key | description |
-| - | - | - |
+| --- | --- | --- |
 | ✔ | `attendance_mandatory` | **Boolean** |
 |   | `datetime` | When is the conference? |
 |   | `address` | Full address for the conference (will be normalized later) |
