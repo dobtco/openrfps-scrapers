@@ -1,3 +1,5 @@
+> Join the OpenRFPs chatroom this weekend (2/22-23/14) during CodeAcross: http://go.dobt.co/openrfps-chat
+
 ## The Open RFPs Project
 
 The Open RFPs Project is modeled after Sunlight Labs' [OpenStates](https://github.com/sunlightlabs/openstates/tree/master/openstates). Open RFPs collects and makes available data about contracting activities, including RFP listings as well as awards, and makes that information available in a standardized format.
