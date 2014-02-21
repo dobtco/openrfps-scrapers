@@ -35,6 +35,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 - **Open:** currently accepting responses
 - **Closed:** no longer accepting responses
 - **Awarded:** no longer accepting responses, and a winning bid has been announced
+- **Cancelled:** self-explanatory
 
 
 ### Awards

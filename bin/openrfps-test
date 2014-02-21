@@ -62,6 +62,10 @@ require('./utils/run_scraper') program, (parsedJson) ->
     !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
       item.title
 
+  runAssertion 'item.status is valid', ->
+    _.every parsedJson, (item) ->
+      !item.status || (item.status.toLowerCase() in ['posted', 'open', 'closed', 'awarded', 'cancelled'])
+
   runAssertion "NIGP codes are digits", ->
     _.every parsedJson, (item) ->
 
