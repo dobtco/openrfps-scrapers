@@ -11,7 +11,7 @@ EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(
 URL_REGEX = /^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/
 
 program
-  .option('-s, --skipsave', 'Save to .json relative to scraper file')
+  .option('-s, --skipsave', "Don't cache results to .json file")
   .option('-l, --limit <n>', 'Stop after processing <n> results [10]', parseInt, 10)
   .option('-f, --force', "Force re-scraping (by default, we'll try to test against the cached .json files)")
   .parse(process.argv)
@@ -62,13 +62,17 @@ require('./utils/run_scraper') program, (parsedJson) ->
     !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
       item.title
 
-  runAssertion "Industry codes are digits", ->
+  runAssertion 'item.status is valid', ->
+    _.every parsedJson, (item) ->
+      !item.status || (item.status.toLowerCase() in ['posted', 'open', 'closed', 'awarded', 'cancelled'])
+
+  runAssertion "NIGP codes are digits", ->
     _.every parsedJson, (item) ->
 
-      return true if _.isEmpty(item.industry_codes)
+      return true if _.isEmpty(item.nigp_codes)
 
-      if item.industry_codes.nigp
-        return _.every item.industry_codes.nigp, ( (x) -> x.match /^[0-9]+$/ )
+      if item.nigp_codes
+        return _.every item.nigp_codes, ( (x) -> x.match /^[0-9]+$/ )
 
       return true
 
