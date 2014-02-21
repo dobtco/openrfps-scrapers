@@ -1,0 +1,22 @@
+## Expected Scraper Output
+Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take note: this schema is designed to be as flexible as possible, for example, *both "2005-06-15T12:00:00Z" and "April 13th at 4pm" are valid entries in the `created_at` field*. Why is this? We want to make writing scrapers as easy and pain-free as possible. Scrapers should simply target HTML elements and extract their contents -- if those contents need to be transformed, we'll do that when we load the data into a database.
+
+> This is a living document -- we expect it to become more complete as we write more scrapers. (Feel free to include a change to this document as you write scrapers.)
+
+### RFPs
+
+| required? | key                | description                                   |
+| -         | -                  | -                                             |
+| ✔         | `id`               | A unique identifier string.                   |
+|           | `html_url`         |                                               |
+| ✔         | `title`            |                                               |
+|           | `contact_name`     |                                               |
+|           | `contact_phone`    |                                               |
+|           | `contact_email`    |                                               |
+|           | `created_at`       |                                               |
+|           | `updated_at`       |                                               |
+|           | `description`      |                                               |
+
+
+### Awards
+@todo
