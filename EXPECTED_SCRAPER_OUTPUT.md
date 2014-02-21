@@ -11,6 +11,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 |   | `status` | [Status](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#valid-statuses) of the RFP |
 |   | `html_url` | A link to the RFP page |
 | ✔ | `title` | Title |
+|   | `department_name`| Department name |
 |   | `contact_name` | Contact name |
 |   | `contact_phone` | Contact phone |
 |   | `contact_email` | Contact email |
