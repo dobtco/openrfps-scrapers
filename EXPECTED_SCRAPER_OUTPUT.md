@@ -8,7 +8,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 | required? | key | description |
 | --- | --- | --- |
 | ✔ | `id` | A unique identifier string |
-|   | `status` | [Status]((https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#valid-statuses)) of the RFP |
+|   | `status` | [Status](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#valid-statuses) of the RFP |
 |   | `html_url` | A link to the RFP page |
 | ✔ | `title` | Title |
 |   | `contact_name` | Contact name |
