@@ -95,9 +95,9 @@ module.exports = (opts, done) ->
                    $table2.find('tr:contains(Prebid Zip Code)').find('td').eq(1).text()
         }
 
-      item.industry_codes = { nigp: [] }
+      item.nigp_codes = []
       $('h2:contains(NIGP codes assigned to bid)').next('table').find('a').each ->
-        item.industry_codes.nigp.push $(@).text()
+        item.nigp_codes.push $(@).text()
 
       item.downloads = []
       $('h2:contains(Documents)').nextAll().filter( (-> $(@).is('table')) ).eq(0).find('a').each ->

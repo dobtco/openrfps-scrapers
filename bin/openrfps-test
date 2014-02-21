@@ -62,13 +62,13 @@ require('./utils/run_scraper') program, (parsedJson) ->
     !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
       item.title
 
-  runAssertion "Industry codes are digits", ->
+  runAssertion "NIGP codes are digits", ->
     _.every parsedJson, (item) ->
 
-      return true if _.isEmpty(item.industry_codes)
+      return true if _.isEmpty(item.nigp_codes)
 
-      if item.industry_codes.nigp
-        return _.every item.industry_codes.nigp, ( (x) -> x.match /^[0-9]+$/ )
+      if item.nigp_codes
+        return _.every item.nigp_codes, ( (x) -> x.match /^[0-9]+$/ )
 
       return true
 
