@@ -3,7 +3,7 @@
 The Open RFPs Project is modeled after Sunlight Labs' [OpenStates](https://github.com/sunlightlabs/openstates/tree/master/openstates). Open RFPs collects and makes available data about contracting activities, including RFP listings as well as awards, and makes that information available in a standardized format.
 
 ## Contribution guidelines
-The first thing to contribute is the location of the best starting page for someone to create a scraper. You can add that to [the wiki page](https://github.com/dobtco/openrfps/wiki/List-of-Procurement-Websites)
+The first thing to contribute is the location of the best starting page in your state for someone to create a scraper. You can add that to [the wiki page](https://github.com/dobtco/openrfps/wiki/List-of-Procurement-Websites)
 
 It's early days, and we're still figuring out the best development toolchain and methods for structuring these scrapers. We've chosen node.js because of its module-loading implementation, its accessibility to the programming community ("Everyone knows Javascript!"), and capacity for asynchronicity. Expect this section of the README to morph into its own separate guide in the near-future.
 
