@@ -6,7 +6,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 ### RFPs
 
 | required? | key                | description                                   |
-| -         | -                  | -                                             |
+| --------- | ------------------ | --------------------------------------------- |
 | ✔         | `id`               | A unique identifier string.                   |
 |           | `html_url`         |                                               |
 | ✔         | `title`            |                                               |
