@@ -5,30 +5,36 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 
 ### RFP
 
-| required? | key                  | description                                   |
-| --------- | -------------------- | --------------------------------------------- |
-| ✔         | `id`                 | A unique identifier string                    |
-|           | `status`             | Status of the RFP ([Valid statuses](#))       |
-|           | `html_url`           | A link to the RFP page                        |
-| ✔         | `title`              | Title                                         |
-|           | `contact_name`       | Contact name                                  |
-|           | `contact_phone`      | Contact phone                                 |
-|           | `contact_email`      | Contact email                                 |
-|           | `created_at`         | When was this RFP posted?                     |
-|           | `updated_at`         | When was this RFP revised?                    |
-|           | `responses_due_at`   | When are responses due?                       |
-|           | `description`        | Text/HTML description                         |
-|           | `prebid_conferences` | Array of conference objects (see below)       |
-|           | `downloads`          | Array of file URLs                            |
-|           | `nigp_codes`         | Array of NIGP codes                           |
+| required? | key | description |
+| - | - | - |
+| ✔ | `id` | A unique identifier string |
+|   | `status` | Status of the RFP ([Valid statuses](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#valid-statuses)) |
+|   | `html_url` | A link to the RFP page |
+| ✔ | `title` | Title |
+|   | `contact_name` | Contact name |
+|   | `contact_phone` | Contact phone |
+|   | `contact_email` | Contact email |
+|   | `created_at` | When was this RFP posted? |
+|   | `updated_at` | When was this RFP revised? |
+|   | `responses_due_at` | When are responses due? |
+|   | `description` | Text/HTML description |
+|   | `prebid_conferences` | Array of [Conference](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#conference) objects |
+|   | `downloads` | Array of file URLs |
+|   | `nigp_codes` | Array of NIGP codes |
 
 
 #### Conference
-| required? | key                    | description                                   |
-| --------- | ---------------------- | --------------------------------------------- |
-| ✔         | `attendance_mandatory` | **Boolean**                                   |
-|           | `datetime`             | When is the conference?                       |
-|           | `address`              | Full address for the conference (will be normalized later) |
+| required? | key | description |
+| - | - | - |
+| ✔ | `attendance_mandatory` | **Boolean** |
+|   | `datetime` | When is the conference? |
+|   | `address` | Full address for the conference (will be normalized later) |
+
+#### Valid statuses
+- **Posted:** posted but not yet accepting responses
+- **Open:** currently accepting responses
+- **Closed:** no longer accepting responses
+- **Awarded:** no longer accepting responses, and a winning bid has been announced
 
 
 ### Awards
