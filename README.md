@@ -50,6 +50,8 @@ This command will:
 2. Cache its results to `scrapers/states/ga/rfps.json`.
 3. Pretty-print the returned JSON.
 
+> There is a [known issue](https://github.com/visionmedia/commander.js/pull/173) with running these commands on Windows. You'll need to use `openrfps-run` instead of `openrfps run`.
+
 Once you're confident that your results are shaping up, try running them against our [test suite](https://github.com/dobtco/openrfps/blob/master/bin/openrfps-test):
 
     bin/openrfps test scrapers/states/ga/rfps.coffee
