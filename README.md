@@ -14,10 +14,10 @@ At present, this project is focused on building scrapers that collect RFP data i
 An RFP scraper for a given state should have at least three files in its directory:
 
 ### config.yml
-Basic configuration and metadata for the parsers. [See our example config.yml](https://github.com/dobtco/openrfps/blob/master/scrapers/states/ga/config.yml).
+Basic configuration and metadata for the parsers. [See our example config.yml](https://github.com/dobtco/openrfps/blob/master/scrapers/ga/config.yml).
 
 ### rfps.coffee (or rfps.js)
-This is the important one, as it handles the scraping of RFPs from the specified government's website. [See an example](https://github.com/dobtco/openrfps/blob/master/scrapers/states/ga/rfps.coffee), or [read the annotated source](http://dobtco.github.io/openrfps/docs/rfps.html).
+This is the important one, as it handles the scraping of RFPs from the specified government's website. [See an example](https://github.com/dobtco/openrfps/blob/master/scrapers/ga/rfps.coffee), or [read the annotated source](http://dobtco.github.io/openrfps/docs/rfps.html).
 
 ### Counties, cities, and other governmental procurement websites
 Other governmental bodies are also welcome. Should you write a scraper for them, please place them in a `cities/[CITYNAME]` or `counties/[COUNTYNAME]` directory inside the appropriate state's directory. Make sure your city or country scraper provides the same three files described above in its directory.
@@ -26,7 +26,7 @@ Other governmental bodies are also welcome. Should you write a scraper for them,
 We've chosen [Node.js](http://nodejs.org/) because of its module-loading implementation, its accessibility to the programming community ("Everyone knows Javascript!"), and its asynchronous-by-default approach. As with most Node.js projects, we use [npm](https://www.npmjs.org/) to [package](https://github.com/dobtco/openrfps/blob/master/package.json) this project and specify its dependencies. We like [CoffeeScript](http://coffeescript.org/) for its expressiveness and improvements over JavaScript, but you can write your scraper in any language that compiles to JavaScript.
 
 ### Install dependencies
-1. [node.js + npm](http://nodejs.org) 
+1. [node.js + npm](http://nodejs.org)
 2. install the `coffee-script` package globally: `npm install -g coffee-script`.
 3. install the rest of the dependencies: `npm install`
 
@@ -48,25 +48,25 @@ We've built a lightweight command-line interface to help you run and test scrape
 
 While starting to develop a scraper, you'll probably want to use a command like:
 
-    bin/openrfps run scrapers/states/ga/rfps.coffee
+    bin/openrfps run scrapers/ga/rfps.coffee
 
 This command will:
 
 1. Run the Georgia RFP scraper.
-2. Cache its results to `scrapers/states/ga/rfps.json`.
+2. Cache its results to `scrapers/ga/rfps.json`.
 3. Pretty-print the returned JSON.
 
 > There is a [known issue](https://github.com/visionmedia/commander.js/pull/173) with running these commands on Windows. You'll need to use `openrfps-run` instead of `openrfps run`.
 
 Once you're confident that your results are shaping up, try running them against our [test suite](https://github.com/dobtco/openrfps/blob/master/bin/openrfps-test):
 
-    bin/openrfps test scrapers/states/ga/rfps.coffee
+    bin/openrfps test scrapers/ga/rfps.coffee
 
 By default, the `test` command will use the cached `.json` file that we downloaded earlier.
 
 To run both the scraper and the tests all with one command:
 
-    bin/openrfps test scrapers/states/ga/rfps.coffee --force
+    bin/openrfps test scrapers/ga/rfps.coffee --force
 
 ### What about the schema?
 See [OUTPUT.md](https://github.com/dobtco/openrfps/blob/master/OUTPUT.md) for the current schema.

@@ -11,6 +11,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 |   | `html_url` | A link to the RFP page |
 | ✔ | `title` | Title |
 |   | `department_name`| Department name |
+|   | `address`| Full address related to this RFP (will be normalized later) |
 |   | `awarded` | Boolean - has the RFP been awarded? (Leave blank for unknown) |
 |   | `canceled` | Boolean - has the RFP been canceled? (Leave blank for unknown) |
 |   | `contact_name` | Contact name |
