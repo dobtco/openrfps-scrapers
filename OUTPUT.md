@@ -8,7 +8,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 | required? | key | description |
 | --- | --- | --- |
 | ✔ | `id` | A unique identifier string |
-|   | `status` | [Status](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#valid-statuses) of the RFP |
+|   | `status` | [Status](https://github.com/dobtco/openrfps/blob/master/OUTPUT.md#valid-statuses) of the RFP |
 |   | `html_url` | A link to the RFP page |
 | ✔ | `title` | Title |
 |   | `department_name`| Department name |
@@ -20,7 +20,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 |   | `responses_open_at` | When do responses open? |
 |   | `responses_due_at` | When are responses due? |
 |   | `description` | Text/HTML description |
-|   | `prebid_conferences` | Array of [Conference](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#conference) objects |
+|   | `prebid_conferences` | Array of [Conference](https://github.com/dobtco/openrfps/blob/master/OUTPUT.md#conference) objects |
 |   | `downloads` | Array of file URLs |
 |   | `nigp_codes` | Array of NIGP codes |
 |   | `commodity` | String representing the commodity (we'll try to match it to a code) |
