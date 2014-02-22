@@ -30,6 +30,7 @@
     "cheerio": "~0.13.1",
     "request": "~2.34.0",
     "async": "~0.2.10",
-    "underscore.string": "~2.3.3"
+    "underscore.string": "~2.3.3",
+    "q": "~1.0.0"
   }
 }
