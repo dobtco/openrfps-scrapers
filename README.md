@@ -72,5 +72,5 @@ We're doing this for two reasons:
 
 By enabling more companies to compete for these contracts, we think that this can unlock a lot of potential for civic innovation, increase competition,  decrease the cost of government, and increase the level of service delivery. We hope you'll join us for the long haul.
 
-## If you run an RFP listing site
-Please contact us at <a href="mailto:openrfps@dobt.co">openrfps@dobt.co</a> if you'd like to contribute a direct source to your state's procurement website.
+## For government
+We're excited to partner with government agencies who are willing to publish their data in an open, standard format from the start. You can contact us using [this form](https://screendoor.dobt.co/dobt/openrfps-government-interest-form).
