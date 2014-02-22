@@ -61,7 +61,7 @@ To run both the scraper and the tests all with one command:
     bin/openrfps test scrapers/states/ga/rfps.coffee --force
 
 ### What about the schema?
-See [EXPECTED_SCRAPER_OUTPUT.md](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md) for the current schema.
+See [OUTPUT.md](https://github.com/dobtco/openrfps/blob/master/OUTPUT.md) for the current schema.
 
 ## Why this is important
 We're doing this for two reasons:
