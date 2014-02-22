@@ -25,6 +25,12 @@ Other governmental bodies are also welcome. Should you write a scraper for them,
 ## Development tools
 We've chosen [Node.js](http://nodejs.org/) because of its module-loading implementation, its accessibility to the programming community ("Everyone knows Javascript!"), and its asynchronous-by-default approach. As with most Node.js projects, we use [npm](https://www.npmjs.org/) to [package](https://github.com/dobtco/openrfps/blob/master/package.json) this project and specify its dependencies. We like [CoffeeScript](http://coffeescript.org/) for its expressiveness and improvements over JavaScript, but you can write your scraper in any language that compiles to JavaScript.
 
+### Install dependencies
+1. [node.js + npm](http://nodejs.org) 
+2. install the `coffee-script` package globally: `npm install -g coffee-script`.
+3. install the rest of the dependencies: `npm install`
+
+### `openrfps` on the command line
 We've built a lightweight command-line interface to help you run and test scrapers. If you run `bin/openrfps --help` from the project root, you'll see some info:
 
     Usage: openrfps [options] [command]
