@@ -81,7 +81,6 @@ module.exports = (opts, done) ->
       for k, v of BASIC_PARAMS
         item[k] = $table.find("tr:contains(#{v})").find('td').eq(3).text()
 
-      item.status = "Open" # See the FILTER_PARAMS -- we're only grabbing "Open" right now.
       item.external_url = $table.find('a:contains(Link to Agency Site)').attr('href')
       item.description = $('[name=bidD]').val()
       item.prebid_conferences = []
