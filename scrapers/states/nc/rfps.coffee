@@ -6,14 +6,6 @@ _ = require 'underscore'
 require 'colors'
 
 # Set up some constants that we'll use later.
-FILTER_PARAMS =
-  track: ''
-  bidResponse: 'all'
-  theType: 'OPEN'
-  govType: 'state'
-  theAgency: 'all'
-  theWord: ''
-  theSort: 'BID NUMBER'
 
 BASIC_PARAMS =
   title: 'Bid Title'
@@ -25,14 +17,17 @@ BASIC_PARAMS =
   responses_due_at: 'Bid Closing Date/Time'
   department_name: 'Agency'
 
-MAINTENANCE_BASIC_PARAMS =
-  title: 'eSource Title'
-  description: 'eSource Description'
-  contact_name: 'Contact Name'
-  contact_phone: 'Contact Phone'
-  contact_email: 'Contact Email'
-  created_at: 'eSource Released Date'
-  department_name: 'Agency'
+DEPT_ROWS =
+  department_name: 0
+  section: 1
+  department_code: 2
+  contact_name: 3
+  contact_address: 4
+  contact_city: 6
+  contact_email: 9
+  contact_phone:7
+  contact_fax: 8
+  url: 5
 
 # We'll export one function, that takes two parameters: an options hash,
 # and a callback that must be executed once we're done scraping.
@@ -47,92 +42,58 @@ module.exports = (opts, done) ->
     # Load the resulting HTML into Cheerio, a jQuery-like DOM parser.
     $ = cheerio.load body
 
-    # State of NC begins with a category listing.  I'm not strong enough with
-    # CoffeeScript right now to make this an optional thing, let's crawl everywhere.
+    # State of NC begins with a category listing.
+    cats = []
 
     # Do some pretty standard DOM-traversal to grab the ID and URL for each category.
     $('table#ctl00_ContentPlaceHolder1_grdCategories').find('tr').each (i, el) ->
       return if i == 0
-      category_label = $(@).find('td').eq(0).find('a').text()
-      category_url = "https://www.ips.state.nc.us/IPS/#{$(@).find('td').eq(0).find('a').attr('href')}"
-
-      # More DOM traversal for the actual RFP
-      request.get category_url, (err, response, body) ->
-        $category = cheerio.load body
-        $category('table#ctl00_ContentPlaceHolder1_grdBidList').find('tr').each (i, el) ->
-          console.log($category(@).find('td').eq(0).find('a').text())
-          rfps.push {
-            id: $category(@).find('td').eq(0).find('a').text(),
-            html_url: "https://www.ips.state.nc.us/IPS/#{$category(@).find('td').eq(0).find('a').attr('href')}"
-          }
-       
+      cats.push {
+        label: $(@).find('td').eq(0).find('a').text(),
+        url: "https://www.ips.state.nc.us/IPS/#{$(@).find('td').eq(0).find('a').attr('href')}"
+      }
 
     # If the user has indicated they want to limit the number of results (via the --limit flag),
     # use Underscore's _.first to make it so.
     if opts.limit > 0
-      rfps = _.first(rfps, opts.limit)
+      cats = _.first(cats, opts.limit)
 
     # Using the async library, we'll make up to 5 concurrent requests to the procurement site.
     # We call the getRfpDetails() function for each one.
     # Once we're done, we call the done() function that was passed to us back in the `module.exports` definition.
-    async.eachLimit rfps, 5, getRfpDetails, (err) ->
+    async.eachLimit cats, 5, scrapeCategory, (err) ->
       console.log(err.red) if err
       done rfps
 
-  # A function for scraping the details from an RFP page. It's just more DOM-traversal,
-  # so it should look familiar by now.
-  getRfpDetails = (item, cb) ->
-    return getMaintenanceRfpDetails(item, cb) if item.html_url.match 'maintanence'
+ 
+  scrapeCategory = (cat, cb) ->
+    rfps = []
+    console.log "Examining #{cat.label}".yellow
 
-    request.get item.html_url, (err, response, body) ->
+    request.get cat.url, (err, response, body) ->
       $ = cheerio.load body
-      $table = $('table').eq(1)
+      $('table#ctl00_ContentPlaceHolder1_grdBidList').find('tr').each (i, el) ->
+        console.log($(@).find('td').eq(0).find('a').text())
 
-      for k, v of BASIC_PARAMS
-        item[k] = $table.find("tr:contains(#{v})").find('td').eq(3).text()
-
-      item.external_url = $table.find('a:contains(Link to Agency Site)').attr('href')
-      item.description = $('[name=bidD]').val()
-      item.prebid_conferences = []
-
-      if $('body').text().match /prebid/i
-        $table2 = $('table').eq(2)
-
-        item.prebid_conferences.push {
-          attendance_mandatory: if $table2.find('tr:contains(Prebid Conference Attendance)').find('td').eq(1).text().match('Mandatory') then true else false
-          datetime: $table2.find('tr:contains(Prebid Conference Date/Time)').find('td').eq(1).text()
-          address: $table2.find('tr:contains(Prebid Location)').find('td').eq(1).text() + "\n" +
-                   $table2.find('tr:contains(Prebid Street)').find('td').eq(1).text() + "\n" +
-                   $table2.find('tr:contains(Prebid City)').find('td').eq(1).text() + ", " +
-                   $table2.find('tr:contains(Prebid State)').find('td').eq(1).text() + " " +
-                   $table2.find('tr:contains(Prebid Zip Code)').find('td').eq(1).text()
-        }
-
-      item.nigp_codes = []
-      $('h2:contains(NIGP codes assigned to bid)').next('table').find('a').each ->
-        item.nigp_codes.push $(@).text()
-
-      item.downloads = []
-      $('h2:contains(Documents)').nextAll().filter( (-> $(@).is('table')) ).eq(0).find('a').each ->
-        item.downloads.push $(@).attr('href')
-
-      console.log "Successfully downloaded #{item.title}".green
+        #rfps.push {
+        #id: $(@).find('td').eq(0).find('a').text(),
+        #pdf_url: "https://www.ips.state.nc.us/IPS/#{$(@).find('td').eq(0).find('a').attr('href')}",
+        #}
 
       cb()
 
-  # Maintenance RFPs have a different layout than the other RFPs.
-  # See http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&source=publicViewQuote for an example.
-  getMaintenanceRfpDetails = (item, cb) ->
-    request.get item.html_url, (err, response, body) ->
+  # A function for scraping the details from an department page. 
+  getDeptDetails = (item, cb) ->
+
+    request.get item.dept_url, (err, response, body) ->
       $ = cheerio.load body
-      $table = $('table').eq(3)
+      $table = $('table#ctl00_ContentPlaceHolder1_dvDept')
 
-      for k, v of MAINTENANCE_BASIC_PARAMS
-        item[k] = $table.find("tr:contains(#{v})").find('td').eq(1).text()
+      for k, row of DEPT_ROWS
+        item[k] = $table.find("tr").eq(row).find('td').eq(2).text()
 
-      item.industry_codes =
-        nigp: $table.find("tr:contains(NIGP Code Selection)").find('td').eq(1).text().match(/(\d+)/ig)
+
+      console.log "Department details loaded for #{item.section}".green
 
       cb()
-
 
