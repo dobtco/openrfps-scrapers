@@ -35,7 +35,7 @@ DEPT_ROWS =
 module.exports = (opts, done) ->
 
   # Set up an empty array for our RFPs.
-  rfps = []
+  rfps = {}
 
   # Send a POST request to the site's endpoint. Why we're POSTing to read data, you'll have to tell me...
   request.get 'https://www.ips.state.nc.us/IPS/catbids.aspx', (err, response, body) ->
@@ -64,11 +64,12 @@ module.exports = (opts, done) ->
     # Once we're done, we call the done() function that was passed to us back in the `module.exports` definition.
     async.eachLimit cats, 5, scrapeCategory, (err) ->
       console.log(err.red) if err
-      done rfps
+      values = for number, rfp of rfps
+        rfp
+      done values
 
- 
+
   scrapeCategory = (cat, cb) ->
-    rfps = []
     console.log "Examining #{cat.label}".yellow
 
     request.get cat.url, (err, response, body) ->
@@ -76,23 +77,22 @@ module.exports = (opts, done) ->
       $('table#ctl00_ContentPlaceHolder1_grdBidList').find('tr').each (i, el) ->
         # also removes whitespace
         number = $(@).find('td').eq(0).find('a').text().replace(/(^[\s]+|[\s]+$)/g, '')
+        return if number.length == 0
         amendment = number.match(/-([0-9])$/)
         if amendment
-          console.log("Checking amendment for #{number}".yellow) if DEBUG
-          idx = number.replace(amendment, '')
-          rfp = rfps[idx]
+          base = number
+          base.replace(amendment, '')
+          console.log("Checking amendment for #{number} at #{base}".yellow) if DEBUG
+          rfp = rfps[base]
           console.log("Found".green) if DEBUG and rfp
         else
-          rfps[number] = {
-            number: number
+          rfp = {
+            number: number,
+            description: trim $(@).find('td').eq(1).text(),
+            date_issued: trim $(@).find('td').eq(2).text(),
           }
+          rfps[number] = rfp
           console.log("RFP added #{number}".green) if DEBUG
-        #amendment = number.match(/-\d/);
-        #rfps.push {
-        #id: $(@).find('td').eq(0).find('a').text(),
-        #pdf_url: "https://www.ips.state.nc.us/IPS/#{$(@).find('td').eq(0).find('a').attr('href')}",
-        #}
-
       cb()
 
   # A function for scraping the details from an department page. 
@@ -110,3 +110,4 @@ module.exports = (opts, done) ->
 
       cb()
 
+  trim = (str) -> str.replace(/(^[\s]+|[\s]+$)/g, '')
