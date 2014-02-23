@@ -73,8 +73,15 @@ module.exports = (opts, done) ->
     request.get cat.url, (err, response, body) ->
       $ = cheerio.load body
       $('table#ctl00_ContentPlaceHolder1_grdBidList').find('tr').each (i, el) ->
-        console.log($(@).find('td').eq(0).find('a').text())
-
+        # also removes whitespace
+        number = $(@).find('td').eq(0).find('a').text().replace(/(^[\s]+|[\s]+$)/g, '')
+        amendment = number.match(/-([0-9])$/)
+        if amendment
+          console.log(number.yellow)
+          base = number.replace(amendment, '')
+        else
+          console.log(number.green)
+        #amendment = number.match(/-\d/);
         #rfps.push {
         #id: $(@).find('td').eq(0).find('a').text(),
         #pdf_url: "https://www.ips.state.nc.us/IPS/#{$(@).find('td').eq(0).find('a').attr('href')}",
