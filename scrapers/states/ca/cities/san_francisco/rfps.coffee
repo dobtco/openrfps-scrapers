@@ -1,4 +1,5 @@
 # Require the necessary modules.
+xml2js = require 'xml2js'
 request = require 'request'
 cheerio = require 'cheerio'
 async = require 'async'
@@ -16,14 +17,16 @@ FILTER_PARAMS =
   theSort: 'BID NUMBER'
 
 BASIC_PARAMS =
-  title: 'Bid Title'
-  contact_name: 'Contact Person'
-  contact_phone: 'Contact Phone Number'
-  contact_email: 'Contact E-mail Address'
-  created_at: 'Date Posted'
-  updated_at: 'Last Revision Date'
-  responses_due_at: 'Bid Closing Date/Time'
-  department_name: 'Agency'
+  title: 'Bid Title:'
+  contact_name: 'Name:'
+  contact_phone: 'Phone:'
+  contact_email: 'E-mail:'
+  #created_at: 'Date Posted'
+  #updated_at: 'Last Revision Date'
+  responses_due_at: 'Bid Due:'
+  responses_due_at_time: 'Time Due:'
+  id: 'Bid Number:'
+  department_name: 'Agency:'
 
 MAINTENANCE_BASIC_PARAMS =
   title: 'eSource Title'
@@ -41,12 +44,21 @@ module.exports = (opts, done) ->
   # Set up an empty array for our RFPs.
   rfps = []
 
-  # Send a POST request to the site's endpoint. Why we're POSTing to read data, you'll have to tell me...
-  request.get 'http://mission.sfgov.org/OCABidPublication/rss.aspx', (err, response, body) ->
+  # Send a GET request to grab the RSS feed of Bids/Contracts
+  request.get 'http://mission.sfgov.org/OCABidPublication/rss.aspx', (error, response, body) ->
 
-    # Load the resulting HTML into Cheerio, a jQuery-like DOM parser.
-    $ = cheerio.load body
+    # Load the RSS string into xml2js to turn xml to nice js objects
+    parser = new xml2js.Parser()
+    parser.parseString body, (err, result) ->
+      items = result.rss.channel[0].item
+      _.each items, (v, k, list) ->
+        rfps.push html_url: v.link[0]
 
+    async.eachLimit rfps, 5, getRfpDetails, (err) ->
+      console.log(err.red) if err
+      done rfps
+
+    ###
     # Do some pretty standard DOM-traversal to grab the ID and URL for each RFP.
     # We just need to get this preliminary information -- we'll scrape for the details later.
     $('table').eq(3).find('tr').each (i, el) ->
@@ -65,14 +77,28 @@ module.exports = (opts, done) ->
     # Using the async library, we'll make up to 5 concurrent requests to the procurement site.
     # We call the getRfpDetails() function for each one.
     # Once we're done, we call the done() function that was passed to us back in the `module.exports` definition.
+
     async.eachLimit rfps, 5, getRfpDetails, (err) ->
       console.log(err.red) if err
       done rfps
+    ###
 
   # A function for scraping the details from an RFP page. It's just more DOM-traversal,
   # so it should look familiar by now.
-  ###
+
   getRfpDetails = (item, cb) ->
+    request.get item.html_url, (err, response, body) ->
+      $ = cheerio.load body
+      $table = $('#_ctl0_cp_BODY_CONTENT_BidDetailBody_PANEL_BID_DETAILS')
+
+      for k, v of BASIC_PARAMS
+        item[k] = $table.find("tr:contains(#{v})").find('td').eq(1).text().trim()
+
+      item.description = $('#_ctl0_cp_BODY_CONTENT_BidDetailBody_lbl_DESCRIPTION').text().trim()
+      
+      console.log "Successfully downloaded #{item.title}".green
+      cb()
+    ###
     return getMaintenanceRfpDetails(item, cb) if item.html_url.match 'maintanence'
 
     request.get item.html_url, (err, response, body) ->
@@ -110,7 +136,8 @@ module.exports = (opts, done) ->
       console.log "Successfully downloaded #{item.title}".green
 
       cb()
-
+      ###
+  ###
   # Maintenance RFPs have a different layout than the other RFPs.
   # See http://ssl.doas.state.ga.us/PRSapp/maintanence?eQHeaderPK=125334&source=publicViewQuote for an example.
   getMaintenanceRfpDetails = (item, cb) ->
