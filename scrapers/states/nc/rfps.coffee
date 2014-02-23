@@ -6,15 +6,33 @@ _ = require 'underscore'
 require 'colors'
 
 # Set up some constants that we'll use later.
+FILTER_PARAMS =
+  track: ''
+  bidResponse: 'all'
+  theType: 'OPEN'
+  govType: 'state'
+  theAgency: 'all'
+  theWord: ''
+  theSort: 'BID NUMBER'
+
 BASIC_PARAMS =
-  number: 'Bid Number'
-  description: 'Description'
-  created_at: 'Date Issued'
-  opening_date: 'Bid Opening Date'
-  opening_time: 'Bid Opening Time'
-  department: 'Help'
+  title: 'Bid Title'
+  contact_name: 'Contact Person'
+  contact_phone: 'Contact Phone Number'
+  contact_email: 'Contact E-mail Address'
+  created_at: 'Date Posted'
+  updated_at: 'Last Revision Date'
+  responses_due_at: 'Bid Closing Date/Time'
+  department_name: 'Agency'
 
-
+MAINTENANCE_BASIC_PARAMS =
+  title: 'eSource Title'
+  description: 'eSource Description'
+  contact_name: 'Contact Name'
+  contact_phone: 'Contact Phone'
+  contact_email: 'Contact Email'
+  created_at: 'eSource Released Date'
+  department_name: 'Agency'
 
 # We'll export one function, that takes two parameters: an options hash,
 # and a callback that must be executed once we're done scraping.
@@ -42,13 +60,10 @@ module.exports = (opts, done) ->
       request.get category_url, (err, response, body) ->
         $category = cheerio.load body
         $category('table#ctl00_ContentPlaceHolder1_grdBidList').find('tr').each (i, el) ->
-          #dept_text = $category(@).find('td').eq(5).find('a').text()
-          #dept_url = "https://www.ips.state.nc.us/IPS/#{$category(@).find('td').eq(5).find('a').attr('href')}"
-          console.log(dept_url)
+          console.log($category(@).find('td').eq(0).find('a').text())
           rfps.push {
             id: $category(@).find('td').eq(0).find('a').text(),
-            pdf_url: $category(@).find('td').eq(0).find('a').attr('href')}
-            #dept_url: "https://www.ips.state.nc.us/IPS/#{$category(@).find('td').eq(5).find('a')}"
+            html_url: "https://www.ips.state.nc.us/IPS/#{$category(@).find('td').eq(0).find('a').attr('href')}"
           }
        
 
