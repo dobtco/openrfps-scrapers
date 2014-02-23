@@ -5,6 +5,7 @@ async = require 'async'
 _ = require 'underscore'
 require 'colors'
 
+DEBUG=true
 # Set up some constants that we'll use later.
 
 BASIC_PARAMS =
@@ -77,10 +78,15 @@ module.exports = (opts, done) ->
         number = $(@).find('td').eq(0).find('a').text().replace(/(^[\s]+|[\s]+$)/g, '')
         amendment = number.match(/-([0-9])$/)
         if amendment
-          console.log(number.yellow)
-          base = number.replace(amendment, '')
+          console.log("Checking amendment for #{number}".yellow) if DEBUG
+          idx = number.replace(amendment, '')
+          rfp = rfps[idx]
+          console.log("Found".green) if DEBUG and rfp
         else
-          console.log(number.green)
+          rfps[number] = {
+            number: number
+          }
+          console.log("RFP added #{number}".green) if DEBUG
         #amendment = number.match(/-\d/);
         #rfps.push {
         #id: $(@).find('td').eq(0).find('a').text(),
