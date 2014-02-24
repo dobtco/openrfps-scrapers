@@ -7,19 +7,22 @@ Q = require 'q'
 require 'colors'
 
 DEBUG = true
+OUTPUT_PROGRESS = true
+
 
 # Set up some constants that we'll use later.
 URLS =
   base:       "http://www.biznet.ct.gov/SCP_Search/"
-  resultPage: "http://www.biznet.ct.gov/SCP_Search/Default.aspx"
-  searchPage: "http://www.biznet.ct.gov/SCP_Search/BidResults.aspx"
+  searchPage: "http://www.biznet.ct.gov/SCP_Search/Default.aspx"
+  resultPage: "http://www.biznet.ct.gov/SCP_Search/BidResults.aspx"
 
 FILTER_PARAMS =
-  total: '#lbTotal'
+  total:     '#lbTotal'
   dataTable: '#GridView1'
 
 BASIC_PARAMS =
-  organization: 'Organization'
+  pageResultSize:      20
+  organization:        'Organization'
   salicitation_number: 'Solicitation Number'
 
 logError = (reason) ->
@@ -35,10 +38,10 @@ logError = (reason) ->
 stripTags = (html) ->
   html.replace(/(<[^>]+>|\s)+/g, ' ').trim()
 
-totalResults = ($el, $) ->
+totalResults = ($el) ->
   text = $el.text()
   total = parseInt(text, 10)
-  throw new Error("#{text} is not a valid number") if _.isNaN(total)
+  throw new Error("'#{text}' is not a valid number") if _.isNaN(total)
   total
 
 parseDate = ($el, $) ->
@@ -66,10 +69,10 @@ parseContent = ($el, $) ->
 
   canceled = (/cancel/i).test(description)
 
-  if DEBUG
+  if OUTPUT_PROGRESS
     console.log (if id? then "✔".green else "✘".red) + " #{id}: #{title.blue}"
-    unless id?
-      console.log "Problems processing '#{$el.html()}'".grey
+  if DEBUG and not id?
+    console.log "Problems processing '#{$el.html()}'".grey
 
   {
     id
