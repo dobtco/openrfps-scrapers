@@ -1,4 +1,3 @@
-# Require the necessary modules.
 xml2js = require 'xml2js'
 request = require 'request'
 cheerio = require 'cheerio'
@@ -6,26 +5,20 @@ async = require 'async'
 _ = require 'underscore'
 require 'colors'
 
-# Set up some constants that we'll use later.
 BASIC_PARAMS =
   title: 'Bid Title:'
   contact_name: 'Name:'
   contact_phone: 'Phone:'
   contact_email: 'E-mail:'
   contact_fax: 'Fax:'
-  #created_at: 'Date Posted'
-  #updated_at: 'Last Revision Date'
   id: 'Bid Number:'
   department_name: 'Agency:'
   commodity: 'Bid Type:'
   estimate: 'Estimated Cost:'
   duration: 'Duration:'
 
-# We'll export one function, that takes two parameters: an options hash,
-# and a callback that must be executed once we're done scraping.
 module.exports = (opts, done) ->
 
-  # Set up an empty array for our RFPs.
   rfps = []
 
   # Send a GET request to grab the RSS feed of Bids/Contracts
@@ -41,9 +34,6 @@ module.exports = (opts, done) ->
     async.eachLimit rfps, 5, getRfpDetails, (err) ->
       console.log(err.red) if err
       done rfps
-
-  # A function for scraping the details from an RFP page. It's just more DOM-traversal,
-  # so it should look familiar by now.
 
   getRfpDetails = (item, cb) ->
     request.get item.html_url, (err, response, body) ->
@@ -64,20 +54,16 @@ module.exports = (opts, done) ->
           address: $bid_details.find('tr:contains(Location:)').find('td').eq(1).text().trim()
         }
 
-      # Not very good QA on this list of bids, some have no unique id, and there is at least one duplicate project in the current list
-      # There seems to be no consistent bid number across the City, so to avoid conflicts, I'm appending the ID to the record in the database that gets passed in the query string
-      # This is the only number I can have a reasonable expectation will always be unique
+      # Not very good QA on this list of bids, some have no unique id, and there is at
+      # least one duplicate project in the current list. There seems to be no consistent
+      # bid number across the City, so to avoid conflicts, I'm appending the ID to the
+      # record in the database that gets passed in the query string. This is the only
+      # number I can have a reasonable expectation will always be unique.
       item.id = item.id + "-" + item.html_url.substring(item.html_url.indexOf("?K=") + 3)
 
       item.downloads = []
       $('tr:contains(download files:)').next().find('a').each ->
         item.downloads.push "http://mission.sfgov.org" + $(@).attr('href')
-        ###
-        item.downloads.push {
-          title: $(@).text().trim()
-          url: "http://mission.sfgov.org/" + $(@).attr('href')
-        }
-        ###
 
       console.log "Successfully downloaded #{item.title}".green
       cb()
