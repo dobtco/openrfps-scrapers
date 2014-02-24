@@ -3,6 +3,9 @@
 program = require 'commander'
 fs = require 'fs'
 colors = require 'colors'
+_ = require 'underscore'
+
+PRINT_MAX = 3
 
 program
   .option('-s, --skipsave', "Don't cache results to .json file")
@@ -14,4 +17,8 @@ program.force = true
 require('./utils/run_scraper') program, (parsedJson) ->
 
   return unless parsedJson
-  console.log JSON.stringify(parsedJson, null, 2)
+  console.log JSON.stringify(_.first(parsedJson, PRINT_MAX), null, 2)
+
+  if parsedJson.length > PRINT_MAX
+    console.log "#{parsedJson.length - PRINT_MAX} RFPs not printed for length considerations".yellow
+
