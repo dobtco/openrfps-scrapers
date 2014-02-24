@@ -16,6 +16,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 |   | `canceled` | Boolean - has the RFP been canceled? (Leave blank for unknown) |
 |   | `contact_name` | Contact name |
 |   | `contact_phone` | Contact phone |
+|   | `contact_fax` | Contact fax |
 |   | `contact_email` | Contact email |
 |   | `created_at` | When was this RFP posted? |
 |   | `updated_at` | When was this RFP revised? |
@@ -26,6 +27,8 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 |   | `downloads` | Array of file URLs |
 |   | `nigp_codes` | Array of NIGP codes |
 |   | `commodity` | String representing the commodity (we'll try to match it to a code) |
+|   | `estimate` | Estimated cost of the contract |
+|   | `duration` | Duration of contract |
 
 
 #### Conference
