@@ -43,14 +43,14 @@ module.exports = (opts, done) ->
       for k, v of BASIC_PARAMS
         item[k] = $bid_details.find("tr:contains(#{v})").find('td').eq(1).text().trim()
 
-      item.responses_due_at = $bid_details.find("tr:contains(Bid Due:)").find('td').eq(1).text().trim() + " " + $bid_details.find("tr:contains(Time Due:)").find('td').eq(1).text().trim() + " PST"
+      item.responses_due_at = $bid_details.find("tr:contains(Bid Due:)").find('td').eq(1).text().trim() + " " + $bid_details.find("tr:contains(Time Due:)").find('td').eq(1).text().trim()
       item.description = $('#_ctl0_cp_BODY_CONTENT_BidDetailBody_lbl_DESCRIPTION').text().trim()
 
       if $('body').text().match /prebid/i
         item.prebid_conferences = []
         item.prebid_conferences.push {
           attendance_mandatory: false
-          datetime: $bid_details.find('tr:contains(Date:)').find('td').eq(1).text().trim() + " " + $bid_details.find('tr:contains(Time:)').find('td').eq(1).text().trim() + " PST"
+          datetime: $bid_details.find('tr:contains(Date:)').find('td').eq(1).text().trim() + " " + $bid_details.find('tr:contains(Time:)').find('td').eq(1).text().trim()
           address: $bid_details.find('tr:contains(Location:)').find('td').eq(1).text().trim()
         }
 
