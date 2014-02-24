@@ -6,7 +6,7 @@ var cheerio = require("cheerio"),
 var START_URL = "http://www.purchase.state.il.us/ipb/IllinoisBID.nsf/viewsolicitationsopenbydate?openview&start=1&count=250?OpenView",
     BASE_URL = "http://www.purchase.state.il.us";
 
-var fields = {
+var FIELDS = {
     "Reference Number": "id",
     "Title": "title",
     "Agency": "department_name",
@@ -20,7 +20,9 @@ var fields = {
 
 module.exports = function(opts, done) {
     getSolicitationUrls(START_URL, function(error, links) {
+        links = opts.limit > 0 ? _.first(links, opts.limit) : links;
         async.mapLimit(links, 5, getSolicitationDetails, function(error, results) {
+            if(error) { throw new Error(error); }
             done(results);
         });
     });
@@ -48,16 +50,17 @@ function getSolicitationDetails(url, cb) {
     // 4 class code
     // 5 attachments
     // for each table we define a function to pull the information from that table as a map
-    // fields are then renamed according to the fields constant defined above
+    // fields are then renamed according to the FIELDS constant defined above
 
-    var rename = renamer(fields);
+    var rename = renamer(FIELDS);
     request.get(url, function(error, response, body) {
         var $ = cheerio.load(body);
         var funcs = [getInformation, getOverview, getInformation, getInformation, null, null];
 
         var detailsByTable = $("br+table").map(function(i, table) {
             return _.isFunction(funcs[i]) ? rename(funcs[i](table)) : {};
-        }).toArray();
+        }).toArray().concat({"html_url": url});
+
 
         cb(null, _.reduce(detailsByTable, function(memo, val, i) {
             return _.extend(memo, val);
