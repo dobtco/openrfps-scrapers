@@ -101,22 +101,26 @@ parseConference = ($el) ->
   ]
   {prebid_conferences}
 
-processHTML = ($) ->
+processTotal = ($) ->
   try
-    total = totalResults $(FILTER_PARAMS.total)
+    total = totalResults $(FILTER_PARAMS.total), $
     console.log "Total number of RFPs: #{total}".green
   catch err
+    total = BASIC_PARAMS.pageResultSize
     console.log err.toString().red
-    console.log "Unable to parse total number of RFPs; continuing blindly.".red
+    console.log "Unable to parse total number of RFPs;
+      continuing blindly with a total of #{total}.".red
+  total
 
-  # The page only spits out 20 at a time, But does offer a hint to the total.
-  # (total / 20) = number of pages. `tbPageNumber` is used (zero based) for each page.
+processHTML = ($) ->
   theRows = $("#{FILTER_PARAMS.dataTable} tr")
+  console.log theRows.html()
+  theRows = theRows
     .first() # first tr is only headers
     .siblings() # grab all the tr's after this one
     .toArray()
 
-  rfps = _(theRows).chain()
+  _(theRows).chain()
     .map (row) ->
       $(row).children('td').toArray()
     .map ([date, content]) ->
@@ -128,14 +132,6 @@ processHTML = ($) ->
         parseDate(date, $)
       )
     .value()
-
-  # If the user has indicated they want to limit the number of results (via the --limit flag),
-  # use Underscore's _.first to make it so.
-  if opts.limit > 0
-    _(rfps).first(opts.limit)
-  else
-    rfps
-
 
 # We'll export one function, that takes two parameters: an options hash,
 # and a callback that must be executed once we're done scraping.
@@ -156,20 +152,50 @@ module.exports = (opts, done) ->
   # Placed in a JSON file for easy use.
   formData = require './formdata.json'
 
+  rfps = []
+  totalRFPs = 0
+
+  saveTotal = ($) ->
+    totalRFPs = processTotal($)
+    $
+
+  saveResult = (results) ->
+    rfps.push(results)
+    results
+
+  requestFirstPage = ->
+    requestGet(URLS.resultPage)
+      # Q will grab the arguments normally passed in to the node style callback
+      # and instead return it as an array.
+      .get(1) # snag the second argument (body)
+      .then(cheerio.load) # Pass body into cheerio
+      .then(saveTotal)
+      .then(processHTML)
+      .then(saveResult)
+
+  requestNextPage = ->
+    formData.btnNext = '>'
+    requestPost(URLS.resultPage, form: formData)
+      .get(1)
+      .then(cheerio.load)
+      .then(processHTML)
+      .then(saveResult)
+
+  concatResults = ->
+    rfps = _(rfps).flatten()
+    # If the user has indicated they want to limit the number of results
+    # (via the --limit flag), use Underscore's _.first to make it so.
+    if opts.limit > 0
+      _(rfps).first(opts.limit)
+    else
+      rfps
+
   # Run out chain of events finishing with a call to the done() function.
   # Each link in the chain will return the value the next link needs to work
   # with. Eventually the last peice will be the array of RFPs.
-  requestPage = (pageNumber) ->
-    formData.tbPageNumber = pageNumber
-    requestPost(URLS.resultPage, form: formData)
-
   requestPost(URLS.searchPage, form: formData)
-    .then( -> requestGet(URLS.resultPage) )
-    # Q will grab the arguments normally passed in to the node style callback
-    # and instead return it as an array.
-    .get(1) # snag the second argument (body)
-    .then(cheerio.load) # Pass body into cheerio
-    .then(processHTML)
+    .then(requestFirstPage)
+    .then(concatResults)
     .then(done, logError)
     .done()
 
