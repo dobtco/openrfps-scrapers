@@ -8,19 +8,23 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 | required? | key | description |
 | --- | --- | --- |
 | ✔ | `id` | A unique identifier string |
-|   | `status` | [Status](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#valid-statuses) of the RFP |
 |   | `html_url` | A link to the RFP page |
 | ✔ | `title` | Title |
+|   | `department_name`| Department name |
+|   | `awarded` | Boolean - has the RFP been awarded? (Leave blank for unknown) |
+|   | `canceled` | Boolean - has the RFP been canceled? (Leave blank for unknown) |
 |   | `contact_name` | Contact name |
 |   | `contact_phone` | Contact phone |
 |   | `contact_email` | Contact email |
 |   | `created_at` | When was this RFP posted? |
 |   | `updated_at` | When was this RFP revised? |
+|   | `responses_open_at` | When do responses open? |
 |   | `responses_due_at` | When are responses due? |
 |   | `description` | Text/HTML description |
-|   | `prebid_conferences` | Array of [Conference](https://github.com/dobtco/openrfps/blob/master/EXPECTED_SCRAPER_OUTPUT.md#conference) objects |
+|   | `prebid_conferences` | Array of [Conference](https://github.com/dobtco/openrfps/blob/master/OUTPUT.md#conference) objects |
 |   | `downloads` | Array of file URLs |
 |   | `nigp_codes` | Array of NIGP codes |
+|   | `commodity` | String representing the commodity (we'll try to match it to a code) |
 
 
 #### Conference
@@ -29,13 +33,6 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 | ✔ | `attendance_mandatory` | **Boolean** |
 |   | `datetime` | When is the conference? |
 |   | `address` | Full address for the conference (will be normalized later) |
-
-#### Valid statuses
-- **Posted:** posted but not yet accepting responses
-- **Open:** currently accepting responses
-- **Closed:** no longer accepting responses
-- **Awarded:** no longer accepting responses, and a winning bid has been announced
-- **Cancelled:** self-explanatory
 
 
 ### Awards
