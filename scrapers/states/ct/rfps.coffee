@@ -181,6 +181,26 @@ module.exports = (opts, done) ->
       .then(processHTML)
       .then(saveResult)
 
+  shouldIgnoreNextRequest = (n) ->
+    (
+      opts.limit and
+      ((n + 1) * BASIC_PARAMS.pageResultSize) > opts.limit
+    )
+
+  loadSubsequentRequests = ->
+    # The page only spits out 20 at a time, But does offer a hint to the total.
+    # (total / 20) = number of pages.
+    # Minus 1 because of the first page load from requestFirstPage()
+    pages = Math.floor(totalRFPs / BASIC_PARAMS.pageResultSize) - 1
+    requests = _(pages).chain()
+      .times (n) ->
+        requestNextPage() unless shouldIgnoreNextRequest(n)
+      .compact()
+      .value()
+    if DEBUG
+      console.log "Spawning #{requests.length} async requests.".cyan
+    Q.all(requests)
+
   concatResults = ->
     rfps = _(rfps).flatten()
     # If the user has indicated they want to limit the number of results
@@ -195,6 +215,7 @@ module.exports = (opts, done) ->
   # with. Eventually the last peice will be the array of RFPs.
   requestPost(URLS.searchPage, form: formData)
     .then(requestFirstPage)
+    .then(loadSubsequentRequests)
     .then(concatResults)
     .then(done, logError)
     .done()
