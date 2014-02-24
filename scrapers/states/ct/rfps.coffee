@@ -9,6 +9,14 @@ require 'colors'
 DEBUG = true
 OUTPUT_PROGRESS = true
 
+# The site requires you to POST for each page (roughly 20 RFPs per page).
+# However, it uses a convoluted base64 file format to manage the pagination
+# (which is near the 73KB range of size). Decoding the data prove to include
+# binary. I can not figure out how to pass the right form data to request the
+# next page. It has to be generated via JavaScript somehow.
+# TODO: Figure out how to craft the form-data to request the next set.
+# Until then we will disable that feature.
+DISABLE_PAGINATION = true
 
 # Set up some constants that we'll use later.
 URLS =
@@ -174,6 +182,8 @@ module.exports = (opts, done) ->
       .then(saveResult)
 
   requestNextPage = ->
+    return Q([]) if DISABLE_PAGINATION
+    # FIXME: Craft the correct form-data
     formData.btnNext = '>'
     requestPost(URLS.resultPage, form: formData)
       .get(1)
