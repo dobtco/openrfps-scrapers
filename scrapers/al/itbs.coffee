@@ -11,8 +11,8 @@ module.exports = (opts, done) ->
       $ = cheerio.load body
 
       $('span[id=ctl00_ContentPlaceHolder2_Label1]').find('tr').each (i, el) ->
-        item = {}
         if i != 0
+          item = {}
           $(@).find('td').each (i, el) ->   
             item.is_itb = true
             switch i
