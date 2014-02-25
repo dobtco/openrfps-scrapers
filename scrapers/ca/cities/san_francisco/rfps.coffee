@@ -56,7 +56,7 @@ module.exports = (opts, done) ->
         item.prebid_conferences.push {
           attendance_mandatory: false
           datetime: $bid_details.find('tr:contains(Date:)').find('td').eq(1).text().trim() + " " + $bid_details.find('tr:contains(Time:)').find('td').eq(1).text().trim()
-          address: $bid_details.find('tr:contains(Location:)').find('td').eq(1).text().trim() || ''
+          address: $bid_details.find('tr:contains(Location:)').find('td').eq(1).text().trim()
         }
         # Whether or not the prebid conference is mandatory is stored in the address field.
         # The following checks for mandatory, sets the flag accordingly
