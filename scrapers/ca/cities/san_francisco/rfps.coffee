@@ -31,6 +31,11 @@ module.exports = (opts, done) ->
       _.each items, (v, k, list) ->
         rfps.push html_url: v.link[0]
 
+    # If the user wants to limit the number of results, use Underscore's _.first to do the job
+    if opts.limit > 0
+      rfps = _.first(rfps, opts.limit)
+
+    # Asynchronously loop through all of the RFPs 5 at a time
     async.eachLimit rfps, 5, getRfpDetails, (err) ->
       console.log(err.red) if err
       done rfps
@@ -46,13 +51,21 @@ module.exports = (opts, done) ->
       item.responses_due_at = $bid_details.find("tr:contains(Bid Due:)").find('td').eq(1).text().trim() + " " + $bid_details.find("tr:contains(Time Due:)").find('td').eq(1).text().trim()
       item.description = $('#_ctl0_cp_BODY_CONTENT_BidDetailBody_lbl_DESCRIPTION').text().trim()
 
-      if $('body').text().match /prebid/i
+      if $('body').text().match /pre-bid/i
         item.prebid_conferences = []
         item.prebid_conferences.push {
           attendance_mandatory: false
           datetime: $bid_details.find('tr:contains(Date:)').find('td').eq(1).text().trim() + " " + $bid_details.find('tr:contains(Time:)').find('td').eq(1).text().trim()
           address: $bid_details.find('tr:contains(Location:)').find('td').eq(1).text().trim()
         }
+        # Whether or not the prebid conference is mandatory is stored in the address field.
+        # The following checks for mandatory, sets the flag accordingly
+        # I would remove the text, but there are so many variations, it may be easier to handle
+        # when parsing the address field
+        mandatory = item.prebid_conferences[0].address.match /mandatory/
+        item.prebid_conferences[0].attendance_mandatory = true if mandatory unless item.prebid_conferences[0].address.match /not mandatory/
+        if mandatory
+          item.prebid_conferences[0].address = item.prebid_conferences[0].address.split('mandatory')[1]
 
       # Not very good QA on this list of bids, some have no unique id, and there is at
       # least one duplicate project in the current list. There seems to be no consistent
