@@ -23,6 +23,7 @@ module.exports = function(opts, done) {
         links = opts.limit > 0 ? _.first(links, opts.limit) : links;
         async.mapLimit(links, 5, getSolicitationDetails, function(error, results) {
             if(error) { throw new Error(error); }
+            console.log("Done scraping!")
             done(results);
         });
     });
@@ -61,7 +62,6 @@ function getSolicitationDetails(url, cb) {
             return _.isFunction(funcs[i]) ? rename(funcs[i](table)) : {};
         }).toArray().concat({"html_url": url});
 
-
         cb(null, _.reduce(detailsByTable, function(memo, val, i) {
             return _.extend(memo, val);
         }, detailsByTable[0]));
@@ -85,7 +85,7 @@ function getOverview(table) {
 // end table parsing functions //
 
 // returns a function to rename a map based on given fields
-// also acts as a filter, removing keys not in fields
+// also acts as a filter, removing keys not in fields,
 function renamer(fields) {
     return function(obj) {
         return _.reduce(fields, function(memo, val, key) {
