@@ -8,7 +8,7 @@ module.exports = (opts, done) ->
   rfps = []
 
   getRfps = (cb) ->
-    request.get 'http://localhost:8000/index.html', (err, response, body) ->
+    request.get 'http://www.purchasing.alabama.gov/txt/ITBs.aspx', (err, response, body) ->
       $ = cheerio.load body
 
       $('span[id=ctl00_ContentPlaceHolder2_Label1]').find('tr').each (i, el) ->
