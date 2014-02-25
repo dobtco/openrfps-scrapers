@@ -33,5 +33,5 @@ module.exports = (opts, done) ->
 
 
   getRfps ->
-    console.log "done! scraped #{rfps.length} invitations to bid".green
+    console.log "done! scraped #{rfps.length} RFPs".green
     done rfps
