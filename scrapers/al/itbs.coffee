@@ -1,6 +1,5 @@
 request = require 'request'
 cheerio = require 'cheerio'
-_ = require 'underscore'
 require 'colors'
 
 module.exports = (opts, done) ->
