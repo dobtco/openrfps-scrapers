@@ -5,9 +5,9 @@ require 'colors'
 
 module.exports = (opts, done) ->
 
-  rfps = []
+  itbs = []
 
-  getRfps = (cb) ->
+  getItbs = (cb) ->
     request.get 'http://www.purchasing.alabama.gov/txt/ITBs.aspx', (err, response, body) ->
       $ = cheerio.load body
 
@@ -15,6 +15,7 @@ module.exports = (opts, done) ->
         item = {}
         if i != 0
           $(@).find('td').each (i, el) ->   
+            item.is_itb = true
             switch i
               when 0 
                 item.id = $(@).text().trim()
@@ -27,11 +28,11 @@ module.exports = (opts, done) ->
               when 3
                 item.response_due_at = $(@).text().trim()
               
-          rfps.push item
+          itbs.push item
 
       cb()
 
 
-  getRfps ->
-    console.log "done! scraped #{rfps.length} RFPs".green
-    done rfps
+  getItbs ->
+    console.log "done! scraped #{itbs.length} ITBs".green
+    done itbs
