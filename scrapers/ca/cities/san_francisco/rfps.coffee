@@ -31,6 +31,10 @@ module.exports = (opts, done) ->
       _.each items, (v, k, list) ->
         rfps.push html_url: v.link[0]
 
+    # If the user wants to limit the number of results, use Underscore's _.first to do the job
+    if opts.limit > 0
+      rfps = _.first(rfps, opts.limit)
+
     async.eachLimit rfps, 5, getRfpDetails, (err) ->
       console.log(err.red) if err
       done rfps
@@ -46,7 +50,7 @@ module.exports = (opts, done) ->
       item.responses_due_at = $bid_details.find("tr:contains(Bid Due:)").find('td').eq(1).text().trim() + " " + $bid_details.find("tr:contains(Time Due:)").find('td').eq(1).text().trim()
       item.description = $('#_ctl0_cp_BODY_CONTENT_BidDetailBody_lbl_DESCRIPTION').text().trim()
 
-      if $('body').text().match /prebid/i
+      if $('body').text().match /pre-bid/i
         item.prebid_conferences = []
         item.prebid_conferences.push {
           attendance_mandatory: false
