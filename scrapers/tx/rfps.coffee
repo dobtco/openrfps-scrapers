@@ -146,7 +146,7 @@ module.exports = (opts, done) ->
 
       item.nigp_codes = []            
       $('td:contains(Class-Item)').each((i, el) ->
-        item.nigp_codes.push ($(@).text().split ':')[1].trim().replace /\s+/g, '')
+        item.nigp_codes.push ($(@).text().split ':')[1].trim().replace /\s+\-/g, '')
 
       item.downloads = []
       $('a:contains(Package)').each (i, el) ->
