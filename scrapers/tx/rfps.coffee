@@ -26,8 +26,12 @@ CONTACT_PARAMS =
   contact_fax:       'Fax:'
   contact_name:      'Contact Name:'
 
+UPDATE_PARAMS =
+  created_at:        'Upload Date:'
+  updated_at:        'Updated date:'
+
 BASE_URL = 'http://esbd.cpa.state.tx.us'
-ASYNC_RQ_MAX = 2
+ASYNC_RQ_MAX = 5
 
 # Schema items not provided:
 # responses_open_at - currently filled with the "Solicitation type"
@@ -48,6 +52,8 @@ module.exports = (opts, done) ->
 
   # Specify the rows we want by putting row values in the url
   # If not specified, it returns records in sets of 25
+  unless opts.limit 
+    opts.limit = 25
   wanturl = "#{BASE_URL}/newbidshow.cfm?startrow=1&endrow=#{opts.limit}"
 
   # Send a GET request to the site's endpoint
@@ -127,18 +133,20 @@ module.exports = (opts, done) ->
       item.responses_due_at = (item.responses_due_at.split 'Agency')[0].trim()
       item.title = $('table').find('td').eq(0).text().trim()
 
-      # The colspan seems a dodgy way to locate the description but there is no label
+      # The colspan seems an unreliable way to find the data but there is no label
       item.description = $('td[colspan=2]').find('td').eq(0).text()
 
       # Create / update dates hang out in untagged text at the bottom of the page
-      lll = $('div[id="mainbody"]').text().indexOf 'Upload Date:', 100
-      mmm = $('div[id="mainbody"]').text().indexOf 'Updated date:', lll 
-      item.created_at = $('div[id="mainbody"]').text().substring lll+13, lll+32 
-      item.updated_at = $('div[id="mainbody"]').text().substring mmm+14, mmm+33
+      loc = 0
+      for k, v of UPDATE_PARAMS 
+        loc = v.length + 1 + $('div[id="mainbody"]').text().indexOf v, loc
+        item[k] = $('div[id="mainbody"]')
+          .text()
+          .substring loc, loc+19      # Truncates fractions of a second
 
       item.nigp_codes = []            
       $('td:contains(Class-Item)').each((i, el) ->
-        item.nigp_codes.push ($(@).text().split ':')[1].trim().replace /\s+/g, ' ')
+        item.nigp_codes.push ($(@).text().split ':')[1].trim().replace /\s+/g, '')
 
       item.downloads = []
       $('a:contains(Package)').each (i, el) ->
