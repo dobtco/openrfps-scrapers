@@ -5,7 +5,8 @@ async = require 'async'
 _ = require 'underscore'
 require 'colors'
 
-DEBUG=true
+DEBUG=false
+TRACE=true
 # Set up some constants that we'll use later.
 
 BASIC_PARAMS =
@@ -19,16 +20,18 @@ BASIC_PARAMS =
   department_name: 'Agency'
 
 DEPT_ROWS =
-  department_name: 0
-  section: 1
-  department_code: 2
-  contact_name: 3
-  contact_address: 4
-  contact_city: 6
-  contact_email: 9
-  contact_phone:7
-  contact_fax: 8
-  url: 5
+  [
+    "department_name",
+    "section",
+    "department_code",
+    "contact_name",
+    "contact_address",
+    "url",
+    "contact_city",
+    "contact_phone",
+    "contact_fax",
+    "contact_email"
+  ]
 
 # We'll export one function, that takes two parameters: an options hash,
 # and a callback that must be executed once we're done scraping.
@@ -81,29 +84,32 @@ module.exports = (opts, done) ->
         amendment = number.match(/-([0-9])$/)
         if amendment
           base = number
-          base.replace(amendment, '')
+          base = base.replace(amendment, '')
           console.log("Checking amendment for #{number} at #{base}".yellow) if DEBUG
           rfp = rfps[base]
           console.log("Found".green) if DEBUG and rfp
         else
           rfp = {
             number: number,
-            description: trim $(@).find('td').eq(1).text(),
-            date_issued: trim $(@).find('td').eq(2).text(),
+            description: trim($(@).find('td').eq(1).text()),
+            date_issued: trim($(@).find('td').eq(2).text()),
+            opens_at: "#{trim $(@).find('td').eq(3).text()} #{trim $(@).find('td').eq(4).text()}",
+            dept_url: "https://www.ips.state.nc.us/IPS/#{$(@).find('td').eq(5).find('a').attr('href')}"
           }
+          getDeptDetails(rfp, cb)
           rfps[number] = rfp
           console.log("RFP added #{number}".green) if DEBUG
       cb()
 
-  # A function for scraping the details from an department page. 
+  # A function for scraping the details from an department page.
   getDeptDetails = (item, cb) ->
 
     request.get item.dept_url, (err, response, body) ->
       $ = cheerio.load body
       $table = $('table#ctl00_ContentPlaceHolder1_dvDept')
 
-      for k, row of DEPT_ROWS
-        item[k] = $table.find("tr").eq(row).find('td').eq(2).text()
+      for row, k of DEPT_ROWS
+        item[k] = $table.find("tr").eq(row).find('td').eq(1).text()
 
 
       console.log "Department details loaded for #{item.section}".green
