@@ -20,7 +20,15 @@ Basic configuration and metadata for the parsers. [See our example config.yml](h
 This is the important one, as it handles the scraping of RFPs from the specified government's website. [See an example](https://github.com/dobtco/openrfps-scrapers/blob/master/scrapers/ga/rfps.coffee), or [read the annotated source](http://dobtco.github.io/openrfps/docs/rfps.html).
 
 ### Counties, cities, and other governmental procurement websites
-Other governmental bodies are also welcome. Should you write a scraper for them, please place them in a `cities/[CITYNAME]` or `counties/[COUNTYNAME]` directory inside the appropriate state's directory. Make sure your city or country scraper provides the same three files described above in its directory.
+Other governmental bodies are also welcome. Should you write a scraper for them, you can add them in a `cities/[CITYNAME]` directory inside the appropriate state's directory.
+
+So far, we have:
+
+- Cities: `ca/cities/san-francisco`
+- Counties: `ca/counties/alameda`
+- School districts: `ca/schools/busd`
+
+Make sure your scraper provides the same three files described above in its directory. We're happy to accept contributions of any kind, but remember that our primary goal is all 50 states.
 
 ## Development tools
 We've chosen [Node.js](http://nodejs.org/) because of its module-loading implementation, its accessibility to the programming community ("Everyone knows Javascript!"), and its asynchronous-by-default approach. As with most Node.js projects, we use [npm](https://www.npmjs.org/) to [package](https://github.com/dobtco/openrfps-scrapers/blob/master/package.json) this project and specify its dependencies. We like [CoffeeScript](http://coffeescript.org/) for its expressiveness and improvements over JavaScript, but you can write your scraper in any language that compiles to JavaScript.
