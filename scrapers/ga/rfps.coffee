@@ -54,6 +54,7 @@ module.exports = (opts, done) ->
 
       rfps.push {
         id: $(@).find('td').eq(0).find('a').text(),
+        type: 'RFP',
         html_url: "http://ssl.doas.state.ga.us/PRSapp/#{$(@).find('td').eq(0).find('a').attr('href')}"
       }
 

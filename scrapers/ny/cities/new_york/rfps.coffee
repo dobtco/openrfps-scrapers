@@ -81,6 +81,13 @@ module.exports = (opts, done) ->
               item.contact_email = contactText.match(EMAIL_REGEX)?[0]
               item.contact_phone = contactText.match(PHONE_REGEX)?[1]
 
+            item.type = if item.id.match 'RFQ'
+              'RFQ'
+            else if $(@).find('h5:contains("Solicitation")')[0]?.nextSibling.data.match 'Request for Information'
+              'RFI'
+            else
+              'RFP'
+
             console.log "Added item #{item.id}".green
             rfps.push item
 

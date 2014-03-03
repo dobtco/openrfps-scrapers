@@ -8,6 +8,7 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 | required? | key | description |
 | --- | --- | --- |
 | ✔ | `id` | A unique identifier string |
+| ✔ | `type` | The type of posting, e.g. `RFP` or `RFI`. See the [master list](https://github.com/dobtco/openrfps-scrapers/blob/master/OUTPUT.md#rfp-types). If you need help choosing a type, feel free to open an issue. |
 |   | `html_url` | A link to the RFP page |
 | ✔ | `title` | Title |
 |   | `department_name`| Department name |
@@ -38,6 +39,15 @@ Below, you'll find a JSON Schema that we'll expect your scrapers to output. Take
 |   | `datetime` | When is the conference? |
 |   | `address` | Full address for the conference (will be normalized later) |
 
+#### RFP Types
+| key | description |
+| --- | --- |
+| RFP | Request for proposal |
+| RFI | Request for information |
+| ITB | Invitation to bid |
+| RFQ | Request for quotes |
+
+> There's an endless number of these, so feel free to append to the list as necessary.
 
 ### Awards
 @todo

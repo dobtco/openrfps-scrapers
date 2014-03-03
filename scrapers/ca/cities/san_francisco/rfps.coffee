@@ -78,5 +78,10 @@ module.exports = (opts, done) ->
       $('tr:contains(download files:)').next().find('a').each ->
         item.downloads.push "http://mission.sfgov.org" + $(@).attr('href')
 
+      item.type = if item.id.match 'RFQ'
+        'RFQ'
+      else
+        'RFP'
+
       console.log "Successfully downloaded #{item.title}".green
       cb()

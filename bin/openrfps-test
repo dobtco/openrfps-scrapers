@@ -42,9 +42,13 @@ require('./utils/run_scraper') program, (parsedJson) ->
     !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
       item.id
 
+  runAssertion 'item.type is valid for all items', ->
+    !_.isEmpty(parsedJson) && _.every parsedJson, (item) ->
+      item.type in ['RFP', 'RFI', 'ITB', 'RFQ']
+
   runAssertion 'item.contact_email is a proper address (or blank)', ->
     !_.isEmpty(parsedJson) && _.almostEvery parsedJson, (item) ->
-      return true if !item.contact_email
+      return true if _s.isBlank(item.contact_email)
       _s.trim(item.contact_email).match(EMAIL_REGEX)
 
   runAssertion 'download URLs are valid (or blank)', ->
