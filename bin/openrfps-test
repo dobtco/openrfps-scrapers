@@ -4,11 +4,11 @@ program = require 'commander'
 colors = require 'colors'
 _ = require 'underscore'
 _s = require 'underscore.string'
+validator = require 'validator'
 
 require './utils/almost_every'
 
 EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-URL_REGEX = /^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/
 
 program
   .option('-s, --skipsave', "Don't cache results to .json file")
@@ -51,7 +51,7 @@ require('./utils/run_scraper') program, (parsedJson) ->
     !_.isEmpty(parsedJson) && _.almostEvery parsedJson, (item) ->
       return true if _.isEmpty(item.downloads)
       _.every item.downloads, (x) ->
-        x.match(URL_REGEX)
+        validator.isURL(x)
 
   runAssertion 'item.id is unique for each item', ->
     pluckedIds = _.pluck(parsedJson, 'id')

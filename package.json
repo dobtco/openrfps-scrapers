@@ -33,6 +33,7 @@
     "underscore.string": "~2.3.3",
     "xml2js": "^0.4.1",
     "jquery": "~2.1.0",
-    "jsdom": "~0.10.1"
+    "jsdom": "~0.10.1",
+    "validator": "^3.4.0"
   }
 }
