@@ -15,68 +15,57 @@ FILTER_PARAMS =
   theWord: ''
   theSort: 'BID NUMBER'
 
+# Schema items not provided:
+#  address            Full address related to this RFP (will be normalized later)
+#  canceled           Boolean - has the RFP been canceled? (Leave blank for unknown)
+#  contact_phone      Contact phone
+#  contact_fax        Contact fax
+#  updated_at         When was this RFP revised?
+#  responses_open_at  When do responses open?
+#  description 	      Text/HTML description
+#  prebid_conferences Array of Conference objects
+#  nigp_codes         Array of NIGP codes
+#  estimate           Estimated cost of the contract
+#  duration           Duration of contract
+
+# Could source any of the following from detail by uncommenting the relevant line
+# Marked with ** if conceptually available from detail screen but not from list
 BASIC_PARAMS =
   id                     : 'Request #'
   title                  : 'Description'
-  description            : 'Comments'
+  description            : 'Comments' # **
 #  awarded                : 'Status'
   responses_due_at       : 'Closing Date'
-  responses_due_at_time  : 'Closing Time'
+#  responses_due_at_time  : 'Closing Time'
   created_at             : 'Posted Date'
-  reqtype              : 'Request Type'
-  contract             : 'Contract'
-  req_nr               : 'Requisition Number'
-  category             : 'Category'
-  agency               : 'Agency'
-  mult_agencies        : 'Multiple Agencies'
-  department_name        : 'Division'
+#  reqtype                : 'Request Type' # **
+#  contract               : 'Contract' # **
+  req_nr                 : 'Requisition Number' # **
+#  category               : 'Category' # **
+#  agency                 : 'Agency' # **
+#  mult_agencies          : 'Multiple Agencies' # **
+  department_name        : 'Division' # **
   contact_name           : 'Contact'
 #  downloads              : 'Addendums Referenced'
-#  awarded_bids         : 'Awarded Bids'
+#  awarded_bids           : 'Awarded Bids' # **
 
 LIST_PARAMS = [
   'title'
   'id'
   'downloads'
   'responses_due_at'
-  'responses_due_at_time'
+# 'responses_due_at_time' # this column not parsed by this mechanism
   'awarded'
   'contact_name'
   'department_name'
   'commodity'
   'created_at'
-  'html_url'
-  'contact_email'
   ]
 
+WANTED_COLS = [0,1,2,3,5,6,7,8,9] 
 BASE_URL = 'http://www.admin.state.nh.us/purchasing/'
 WANT_URL = 'bids_posteddte.asp'
-
 ASYNC_RQ_MAX = 5
-
-#   Schema items not provided:
-#	address 	Full address related to this RFP (will be normalized later)
-#	canceled 	Boolean - has the RFP been canceled? (Leave blank for unknown)
-#	contact_phone 	Contact phone
-#	contact_fax 	Contact fax
-#	updated_at 	When was this RFP revised?
-#	responses_open_at 	When do responses open?
-#	description 	Text/HTML description
-#	prebid_conferences 	Array of Conference objects
-#	nigp_codes 	Array of NIGP codes
-#	estimate 	Estimated cost of the contract
-#	duration 	Duration of contract
-
-#Available at detail screen but not from list
-#Comments
-#Request Type
-#Contract
-#Requisition Number
-#Category
-#Agency
-#Multiple Agencies
-#Division
-#Awarded Bids
 
 rfps = [];
 
@@ -92,30 +81,34 @@ module.exports = (opts, done) ->
 
     # Load the resulting HTML into Cheerio
     $ = cheerio.load html
-    garr = []    # Array for contents of cells numbered across table row
     $('body').find('table').eq(3).find('tr').each( (i, el) ->
-      garr = ( $(@).find('td').eq(k).text().trim() for k in [0..9] ) 
-      garr[10] = BASE_URL+$(@).find('td').eq(1).find('a').attr('href')
-      garr[11] = $(@).find('td').eq(6).find('a').attr('href')
-      if garr[5] is 'Open'
-        garr[5] = false   # All listed items are open i.e. unawarded
-      if garr[11]
-        garr[11] = (garr[11].split ':')[1]
-      if garr[2]
-        garr[2] = []
+      gobj = 
+      ( _.object(LIST_PARAMS, 
+        $(@).find('td').eq(k).text().trim() for k in WANTED_COLS)) 
+      gobj.responses_due_at = 
+        "#{gobj.responses_due_at} #{$(@).find('td').eq(4).text().trim()}"
+      gobj.html_url = BASE_URL+$(@).find('td').eq(1).find('a').attr('href')
+      gobj.contact_email = $(@).find('td').eq(6).find('a').attr('href')
+      if gobj.contact_email
+        gobj.contact_email = (gobj.contact_email.split ':')[1]
+      if gobj.awarded is 'Open' # Redundant: all listed items are open i.e. unawarded
+        gobj.awarded = false
+      if gobj.downloads
+        gobj.downloads = []
         $(@).find('a:contains(Addendum)').each (i, el) ->
-          garr[2].push $(@).attr('href').trim() # .replace /[\s]/g, '%20'  #  '_' TESTING!!!
+          gobj.downloads.push $(@).attr('href').trim() 
       else
-        garr[2] = []
-      rfps.push ( _.object(LIST_PARAMS, garr) ) )
+        gobj.downloads = []
+      rfps.push gobj )
 
-    rfps = _.last(rfps, rfps.length-2)     
+    rfps = _.last(rfps, rfps.length-2)  # first two rows contain headers
 
-    async.eachLimit rfps, ASYNC_RQ_MAX, getRfpDetails, (err) ->                                        console.log(err.red) if err
+    async.eachLimit rfps, ASYNC_RQ_MAX, getRfpDetails, (err) ->
+      console.log(err.red) if err
     done rfps
     );
 
-  # A function for scraping the details from an RFP page. 
+  # A function for scraping the details from an RFP page.
   getRfpDetails = (item, cb) ->
     ca = []
 
