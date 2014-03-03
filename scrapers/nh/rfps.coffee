@@ -62,7 +62,7 @@ LIST_PARAMS = [
   'created_at'
   ]
 
-WANTED_COLS = [0,1,2,3,5,6,7,8,9] 
+WANTED_COLS = [0,1,2,3,5,6,7,8,9]
 BASE_URL = 'http://www.admin.state.nh.us/purchasing/'
 WANT_URL = 'bids_posteddte.asp'
 ASYNC_RQ_MAX = 5
@@ -82,10 +82,10 @@ module.exports = (opts, done) ->
     # Load the resulting HTML into Cheerio
     $ = cheerio.load html
     $('body').find('table').eq(3).find('tr').each( (i, el) ->
-      gobj = 
-      ( _.object(LIST_PARAMS, 
-        $(@).find('td').eq(k).text().trim() for k in WANTED_COLS)) 
-      gobj.responses_due_at = 
+      gobj =
+      ( _.object(LIST_PARAMS,
+        $(@).find('td').eq(k).text().trim() for k in WANTED_COLS))
+      gobj.responses_due_at =
         "#{gobj.responses_due_at} #{$(@).find('td').eq(4).text().trim()}"
       gobj.html_url = BASE_URL+$(@).find('td').eq(1).find('a').attr('href')
       gobj.contact_email = $(@).find('td').eq(6).find('a').attr('href')
@@ -96,7 +96,7 @@ module.exports = (opts, done) ->
       if gobj.downloads
         gobj.downloads = []
         $(@).find('a:contains(Addendum)').each (i, el) ->
-          gobj.downloads.push $(@).attr('href').trim() 
+          gobj.downloads.push $(@).attr('href').trim().replace(/\s/g, '%20')
       else
         gobj.downloads = []
       rfps.push gobj )
@@ -116,12 +116,12 @@ module.exports = (opts, done) ->
     request.get item.html_url, (err, response, body) ->
       $ = cheerio.load body
       # Find text in table area, each label precedes related value by 2 cells
-      $('body').find('table').eq(4).find('td').each (i, el) -> 
-        ca.push $(@).text().trim() 
+      $('body').find('table').eq(4).find('td').each (i, el) ->
+        ca.push $(@).text().trim()
     for k, v of BASIC_PARAMS
       unless item[k]
         item[k] = (_.object (_.first ca, ca.length-2), (_.last ca, ca.length-2) )[v]
-      unless item[k] 
+      unless item[k]
         item[k] = ''
 
     cb()
