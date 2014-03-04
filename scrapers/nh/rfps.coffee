@@ -62,6 +62,10 @@ LIST_PARAMS = [
   'created_at'
   ]
 
+TYPES =
+  Bid: 'ITB'
+  RFP: 'RFP'
+  RFB: 'ITB'
 WANTED_COLS = [0,1,2,3,5,6,7,8,9]
 BASE_URL = 'http://www.admin.state.nh.us/purchasing/'
 WANT_URL = 'bids_posteddte.asp'
@@ -99,6 +103,9 @@ module.exports = (opts, done) ->
           gobj.downloads.push $(@).attr('href').trim().replace(/\s/g, '%20')
       else
         gobj.downloads = []
+      gobj.type = TYPES[(gobj.id.substring 0,3)]
+      unless gobj.type
+        gobj.type = ''
       rfps.push gobj )
 
     rfps = _.last(rfps, rfps.length-2)  # first two rows contain headers
