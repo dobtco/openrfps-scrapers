@@ -131,6 +131,3 @@ function validateFields(item, validators) {
         return false;
     }))
 }
-function existy(thing) {
-    return thing != null;
-}
