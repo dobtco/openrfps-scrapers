@@ -45,12 +45,31 @@ function getSolicitationDetails(link, cb) {
         details["id"] = link_parsed.query.spec
         details["type"] = link_parsed.query.method
         details["title"] = link_parsed.query.desc
+        details["downloads"] = []
 
         pre_text = $("body pre").text()
         details["responses_open_at"] = pre_text.match(/OPENING.+(\d{1,2}\/\d{1,2}\/\d{4})/)[1]
         details["contact_name"] = (pre_text.match(/BUYER:\s(.+,.+)/)[1]).trim()
 
-        // TODO: follow links to actual solicitation content and downloable asset links 
+        var more_info_link = BASE_URL + $("pre a").eq(0).attr("href")
+        console.log(more_info_link)
+        // if the more info link is a PDF, add it to the download files array
+        // otherwise, parse that page
+        if(more_info_link.indexOf('.pdf') != -1){
+            details["downloads"].push(more_info_link)
+        } else {
+            request.get(more_info_link, function(error, response, body) {
+                more_body = cheerio.load(body);
+                // details['department_name'] = $more_info("h4").eq(0).text() // inconsistent 
+                due_at_matches = more_body("h3").text().match(/Proposal Due Date: (.+ (PM|AM))/)
+                if(due_at_matches){
+                    details['responses_due_at'] = due_at_matches[1]
+                }
+                more_body("li a").each(function(n,li_a){
+                    details["downloads"].push(more_info_link + li_a.attribs.href)
+                })
+            })
+        }
 
         cb(null, details);
     });
