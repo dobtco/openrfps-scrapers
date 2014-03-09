@@ -1,5 +1,6 @@
 request = require 'request'
 cheerio = require 'cheerio'
+zombie = require 'zombie'
 async = require 'async'
 _ = require 'underscore'
 require 'colors'
@@ -35,10 +36,16 @@ module.exports = (opts, done) ->
       cb()
 
   getRfps = (cb) ->
+    browser = new zombie()
+    browser.on("error", (error) -> console.error(error))
+    browser.visit("http://www.twitter.com")
+      .then( () ->
+        console.log "visited!"
+        return true)
 
 
 
 
-  getItbs ->
-    console.log "done! scraped #{itbs.length} ITBs".green
-    done itbs
+  getRfps ->
+    console.log "done!".green
+    done rfps
