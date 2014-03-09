@@ -7,6 +7,7 @@ require 'colors'
 module.exports = (opts, done) ->
 
   itbs = []
+  rfps = []
 
   getItbs = (cb) ->
     request.get "http://www.purchasing.alabama.gov/txt/ITBs.aspx", (err, response, body) ->
@@ -32,6 +33,11 @@ module.exports = (opts, done) ->
           itbs.push item
 
       cb()
+
+  getRfps = (cb) ->
+
+
+
 
   getItbs ->
     console.log "done! scraped #{itbs.length} ITBs".green
