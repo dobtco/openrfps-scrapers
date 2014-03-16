@@ -1,4 +1,5 @@
 request = require 'request'
+assert = require 'assert'
 cheerio = require 'cheerio'
 zombie = require 'zombie'
 async = require 'async'
@@ -38,13 +39,19 @@ module.exports = (opts, done) ->
   getRfps = (cb) ->
     browser = new zombie()
     browser.on("error", (error) -> console.error(error))
-    browser.visit("http://www.twitter.com")
+    browser
+      .visit("http://rfp.alabama.gov/PublicView.aspx")
       .then( () ->
-        console.log "visited!"
-        return true)
-
-
-
+        browser.select("ctl00$MyContent$ddlStatus", "Open")
+        )
+      .then( () ->
+        return browser.pressButton("Search")
+        )
+      .then( () ->
+        assert.ok(browser.success)
+        console.log(browser.html())
+        cb()
+        )
 
   getRfps ->
     console.log "done!".green
