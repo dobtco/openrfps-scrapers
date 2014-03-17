@@ -2,7 +2,6 @@ request = require 'request'
 assert = require 'assert'
 cheerio = require 'cheerio'
 zombie = require 'zombie'
-async = require 'async'
 _ = require 'underscore'
 require 'colors'
 
@@ -10,6 +9,8 @@ module.exports = (opts, done) ->
 
   itbs = []
   rfps = []
+  page = 1
+  pages = 1
 
   getItbs = (cb) ->
     request.get "http://www.purchasing.alabama.gov/txt/ITBs.aspx", (err, response, body) ->
@@ -34,6 +35,8 @@ module.exports = (opts, done) ->
           itbs.push item
       cb()
 
+      
+
   getRfps = (cb) ->
     browser = new zombie()
     browser.on("error", (error) -> console.error(error))
@@ -47,18 +50,19 @@ module.exports = (opts, done) ->
         )
       .then( () ->
         assert.ok(browser.success)
-        return getRfpDetails(browser, browser.html())
+        getRfpDetails(browser, browser.html())
         )
       .then( () ->
         cb()
-        )
+        )  
 
   getRfpDetails = (browser, body) ->
-    page = 1
     $ = cheerio.load body  
     # XXX: this is super janky and i'm embarrassed by it but it works
     rows = $('table[id=MyContent_GridViewRFP]').find('tr').length
-    $('table[id=MyContent_GridViewRFP]').find('tr').each (i, el) ->     
+    $('table[id=MyContent_GridViewRFP]').find('tr').each (i, el) ->   
+      if i is (rows - 1)
+        pages = $(@).find('td').length
       if i isnt 0 and i isnt (rows - 1) and i isnt (rows - 2)
         item = {}
         $(@).find('td').each (i, el) ->
@@ -67,29 +71,33 @@ module.exports = (opts, done) ->
             when 0
               item.id = $(@).text().trim()
             when 1
-              item.title = $(@).text().split(':').pop().trim()
+              description = $(@).text().split(':').pop().trim().split('.')
+              item.title = description[0] + "."
+              if description.length > 2 and description[1] isnt ''
+                item.description = $(@).text().split(':').pop().trim()
             when 2
               item.department_name = $(@).text().trim()
+        rfps.push item
 
-        rfps.push item   
-
-    try
+    if page < pages
       page += 1
       browser
-        .clickLink("2")
+        .fill("input[name=__EVENTTARGET]", "ctl00$MyContent$GridViewRFP")
+        .fill("input[name=__EVENTARGUMENT]", "Page$#{page}")
+        .document.forms[0].submit()
+      browser
+        .wait()
         .then( () ->
           assert.ok(browser.success)
           getRfpDetails(browser, browser.html())
           )
-      
-    catch error    
-      console.log "error on #{page}"
-      console.log error
-
-    finally
+    else
       rfps = _.uniq(rfps, (item) -> item.id)
+      return rfps
 
   getRfps ->
-    console.log "done! #{rfps.length} rfps".green
-    #console.log rfps
-    #done rfps
+    console.log "got #{rfps.length} rfps!".green
+    getItbs ->
+      console.log "got #{itbs.length} itbs!".green
+      solicitations = _.union(rfps, itbs)
+      done solicitations
