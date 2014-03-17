@@ -31,9 +31,7 @@ module.exports = (opts, done) ->
                 item.contact_email = $(@).find('a').attr('href').split(':').pop()
               when 3
                 item.response_due_at = $(@).text().trim()
-          
           itbs.push item
-
       cb()
 
   getRfps = (cb) ->
@@ -49,10 +47,49 @@ module.exports = (opts, done) ->
         )
       .then( () ->
         assert.ok(browser.success)
-        console.log(browser.html())
+        return getRfpDetails(browser, browser.html())
+        )
+      .then( () ->
         cb()
         )
 
+  getRfpDetails = (browser, body) ->
+    page = 1
+    $ = cheerio.load body  
+    # XXX: this is super janky and i'm embarrassed by it but it works
+    rows = $('table[id=MyContent_GridViewRFP]').find('tr').length
+    $('table[id=MyContent_GridViewRFP]').find('tr').each (i, el) ->     
+      if i isnt 0 and i isnt (rows - 1) and i isnt (rows - 2)
+        item = {}
+        $(@).find('td').each (i, el) ->
+          item.type = "RFP"
+          switch i
+            when 0
+              item.id = $(@).text().trim()
+            when 1
+              item.title = $(@).text().split(':').pop().trim()
+            when 2
+              item.department_name = $(@).text().trim()
+
+        rfps.push item   
+
+    try
+      page += 1
+      browser
+        .clickLink("2")
+        .then( () ->
+          assert.ok(browser.success)
+          getRfpDetails(browser, browser.html())
+          )
+      
+    catch error    
+      console.log "error on #{page}"
+      console.log error
+
+    finally
+      rfps = _.uniq(rfps, (item) -> item.id)
+
   getRfps ->
-    console.log "done!".green
-    done rfps
+    console.log "done! #{rfps.length} rfps".green
+    #console.log rfps
+    #done rfps
