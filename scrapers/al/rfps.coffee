@@ -77,6 +77,9 @@ module.exports = (opts, done) ->
                 item.description = $(@).text().split(':').pop().trim()
             when 2
               item.department_name = $(@).text().trim()
+            when 3
+              if $(@).text().trim().length > 0
+                item.html_url = $(@).text().trim()
         rfps.push item
 
     if page < pages
