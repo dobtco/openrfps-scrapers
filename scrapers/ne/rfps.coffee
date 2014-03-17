@@ -32,12 +32,12 @@ module.exports = (opts, done) ->
           
           $('.col4full750 tr.cell-purch').each (i, _) ->
             obj = {}
-            obj.id = util.trim $(@).find('.cell-purch:nth-child(3) a').text()
-            obj.responses_open_at = util.trim $(@).find('.cell-purch:nth-child(2)').text()
-            obj.title = util.trim $(@).find('.cell-purch:nth-child(1)').text()
+            obj.id = util.trim $(@).find('td:nth-child(3) a').text()
+            obj.responses_open_at = util.trim $(@).find('td:nth-child(2)').text()
+            obj.title = util.trim $(@).find('td:nth-child(1)').text()
             obj.commodity = obj.title
-            obj.contact_name = util.trim $(@).find('.cell-purch:nth-child(4)').text()
-            obj.html_url = $(@).find('.cell-purch:nth-child(3) a').attr('href')
+            obj.contact_name = util.trim $(@).find('td:nth-child(4)').text()
+            obj.html_url = $(@).find('td:nth-child(3) a').attr('href')
             obj.html_url = "http://das.nebraska.gov/materiel/" + obj.html_url.substr(6)
             
             details = requestsync(
@@ -87,12 +87,12 @@ module.exports = (opts, done) ->
           # "State Purchasing Processed Current Bid Opportunities"
           jQuery('.col4full750:first tr.cell-purch').each (i, _) ->
             obj = {}
-            obj.id = util.trim jQuery(@).find('.cell-purch:nth-child(4) a').text()
-            obj.responses_open_at = util.trim jQuery(@).find('.cell-purch:nth-child(2)').text()
-            obj.updated_at= util.trim jQuery(@).find('.cell-purch:nth-child(3)').text()
-            obj.title = util.trim jQuery(@).find('.cell-purch:nth-child(1)').text()
-            obj.contact_name = util.trim jQuery(@).find('.cell-purch:nth-child(5)').text()
-            obj.html_url = CONFIG.bid_link_prefix + jQuery(@).find('.cell-purch:nth-child(4) a').attr('href').substr(17)
+            obj.id = util.trim jQuery(@).find('td:nth-child(4) a').text()
+            obj.responses_open_at = util.trim jQuery(@).find('td:nth-child(2)').text()
+            obj.updated_at= util.trim jQuery(@).find('td:nth-child(3)').text()
+            obj.title = util.trim jQuery(@).find('td:nth-child(1)').text()
+            obj.contact_name = util.trim jQuery(@).find('td:nth-child(5)').text()
+            obj.html_url = CONFIG.bid_link_prefix + jQuery(@).find('td:nth-child(4) a').attr('href').substr(17)
             
             details = requestsync(
               method: 'GET'
@@ -121,10 +121,10 @@ module.exports = (opts, done) ->
           jQuery('.col4full750:eq(1) tr.cell-purch').each (i, _) ->
             obj = {}
             obj.awarded = true
-            obj.id = util.trim jQuery(@).find('.cell-purch:nth-child(5)').text()
-            obj.updated_at= util.trim jQuery(@).find('.cell-purch:nth-child(4)').text()
-            obj.title = util.trim jQuery(@).find('.cell-purch:nth-child(1)').text()
-            obj.contact_name = util.trim jQuery(@).find('.cell-purch:nth-child(6)').text()
+            obj.id = util.trim jQuery(@).find('td:nth-child(5)').text()
+            obj.updated_at= util.trim jQuery(@).find('td:nth-child(4)').text()
+            obj.title = util.trim jQuery(@).find('td:nth-child(1)').text()
+            obj.contact_name = util.trim jQuery(@).find('td:nth-child(6)').text()
             obj.html_url = CONFIG.bid_link_prefix + jQuery(@).find('a').attr('href').substr(17)
             
             details = requestsync(
@@ -172,12 +172,12 @@ module.exports = (opts, done) ->
           # "Agency Processed Current Bid Opportunities"
           jQuery('.col4full750:first tr.cell-purch').each (i, _) ->
             obj = {}
-            obj.id = util.trim jQuery(@).find('.cell-purch:nth-child(4) a').text()
-            obj.responses_open_at = util.trim jQuery(@).find('.cell-purch:nth-child(2)').text()
-            obj.updated_at= util.trim jQuery(@).find('.cell-purch:nth-child(3)').text()
-            obj.title = util.trim jQuery(@).find('.cell-purch:nth-child(1)').text()
-            obj.department_name = util.trim jQuery(@).find('.cell-purch:nth-child(5)').text()
-            obj.html_url = CONFIG.bid_link_prefix + jQuery(@).find('.cell-purch:nth-child(4) a').attr('href').substr(17)
+            obj.id = util.trim jQuery(@).find('td:nth-child(4) a').text()
+            obj.responses_open_at = util.trim jQuery(@).find('td:nth-child(2)').text()
+            obj.updated_at= util.trim jQuery(@).find('td:nth-child(3)').text()
+            obj.title = util.trim jQuery(@).find('td:nth-child(1)').text()
+            obj.department_name = util.trim jQuery(@).find('td:nth-child(5)').text()
+            obj.html_url = CONFIG.bid_link_prefix + jQuery(@).find('td:nth-child(4) a').attr('href').substr(17)
             
             details = requestsync(
               method: 'GET'
@@ -217,10 +217,10 @@ module.exports = (opts, done) ->
           jQuery('.col4full750:eq(1) tr.cell-purch').each (i, _) ->
             obj = {}
             obj.awarded = true
-            obj.id = util.trim jQuery(@).find('.cell-purch:nth-child(5)').text()
-            obj.updated_at= util.trim jQuery(@).find('.cell-purch:nth-child(4)').text()
-            obj.title = util.trim jQuery(@).find('.cell-purch:nth-child(1)').text()
-            obj.department_name = util.trim jQuery(@).find('.cell-purch:nth-child(6)').text()
+            obj.id = util.trim jQuery(@).find('td:nth-child(5)').text()
+            obj.updated_at= util.trim jQuery(@).find('td:nth-child(4)').text()
+            obj.title = util.trim jQuery(@).find('td:nth-child(1)').text()
+            obj.department_name = util.trim jQuery(@).find('td:nth-child(6)').text()
             
             # Done scraping; add this result and move on to the next
             results.push obj
@@ -229,12 +229,12 @@ module.exports = (opts, done) ->
           # "Request for Information - Agency Processed"
           jQuery('.col4full750:eq(2) tr.cell-purch').each (i, _) ->
             obj = {}
-            obj.id = util.trim jQuery(@).find('.cell-purch:nth-child(4)').text()
-            obj.updated_at= util.trim jQuery(@).find('.cell-purch:nth-child(3)').text()
-            obj.title = util.trim jQuery(@).find('.cell-purch:nth-child(1)').text()
-            obj.department_name = util.trim jQuery(@).find('.cell-purch:nth-child(5)').text()
+            obj.id = util.trim jQuery(@).find('td:nth-child(4)').text()
+            obj.updated_at= util.trim jQuery(@).find('td:nth-child(3)').text()
+            obj.title = util.trim jQuery(@).find('td:nth-child(1)').text()
+            obj.department_name = util.trim jQuery(@).find('td:nth-child(5)').text()
             
-            obj.created_at = util.trim jQuery(@).find('.cell-purch:nth-child(2)').text()
+            obj.created_at = util.trim jQuery(@).find('td:nth-child(2)').text()
             if obj.created_at.indexOf('Withdrawn')
               obj.canceled = true
               obj.created_at = obj.created_at.substr(0, 8)
