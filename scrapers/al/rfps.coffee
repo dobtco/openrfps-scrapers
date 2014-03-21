@@ -10,7 +10,6 @@ module.exports = (opts, done) ->
   itbs = []
   rfps = []
   page = 1
-  pages = 1
 
   getItbs = (cb) ->
     request.get "http://www.purchasing.alabama.gov/txt/ITBs.aspx", (err, response, body) ->
@@ -60,9 +59,8 @@ module.exports = (opts, done) ->
     $ = cheerio.load body  
     # XXX: this is super janky and i'm embarrassed by it but it works
     rows = $('table[id=MyContent_GridViewRFP]').find('tr').length
+    pages = $('table[id=MyContent_GridViewRFP]').find('tr').eq(rows-1).find('td').length
     $('table[id=MyContent_GridViewRFP]').find('tr').each (i, el) ->   
-      if i is (rows - 1)
-        pages = $(@).find('td').length
       if i isnt 0 and i isnt (rows - 1) and i isnt (rows - 2)
         item = {}
         $(@).find('td').each (i, el) ->
