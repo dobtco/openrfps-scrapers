@@ -84,6 +84,9 @@ module.exports = (opts, done) ->
   # Set up an empty array for our RFPs.
   rfps = [];
 
+  unless opts.limit
+    opts.limit = 9999
+
   wanturl = BASE_URL+WANT_URL
 
   # Send a GET request to the site's endpoint
