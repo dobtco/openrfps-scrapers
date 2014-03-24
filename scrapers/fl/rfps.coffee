@@ -79,6 +79,9 @@ module.exports = (opts, done) ->
   # Set up an empty array for our RFPs.
   rfps = []
 
+  unless opts.limit
+    opts.limit = 9999
+
   request.get("#{BASE_URL}#{WANT_URL}", (err, response, html) ->
 
     # Load the resulting HTML into Cheerio
