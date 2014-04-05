@@ -1,0 +1,10 @@
+name: Nebraska
+index_url: http://das.nebraska.gov/materiel/purchase_bureau/vendor/bid_opportunity.html
+
+# URLs to parse
+commodity_url: http://das.nebraska.gov/materiel/purchase_bureau/vendor/commodity-itb.html
+services_url: http://das.nebraska.gov/materiel/purchase_bureau/vendor/services-rfp.html
+agency_url: http://das.nebraska.gov/materiel/purchase_bureau/vendor/agency-rfp.html
+
+# Prefix for the detail page for a given bid
+bid_link_prefix: http://das.nebraska.gov/materiel/purchasing/

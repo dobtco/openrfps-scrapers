@@ -35,6 +35,8 @@
     "jquery": "~2.1.0",
     "jsdom": "~0.10.1",
     "validator": "^3.4.0",
-    "zombie":"~2.0.0"
+    "zombie":"~2.0.0",
+    "libyaml": "~0.2.3",
+    "request-sync": "~0.0.5"
   }
 }
