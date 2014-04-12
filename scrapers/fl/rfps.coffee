@@ -132,7 +132,10 @@ module.exports = (opts, done) ->
         loc = v.length + 1 + $tr.text().indexOf v, loc
         item[k] = $tr.text()
           .substring loc, loc+300
-          .trim()
+        if item[k]
+          item[k] = item[k].trim()
+        else
+          item[k] = ''		
         offset[k] = loc
 
       # Contact address has no label, but follows the phone &/or fax number(s)
