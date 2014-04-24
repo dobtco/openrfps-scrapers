@@ -8,8 +8,6 @@ require 'colors'
 
 module.exports = (opts, done) ->
 
-  page = 1
-
   getItbs = (cb) ->
     itbs = []
     request.get "http://www.purchasing.alabama.gov/txt/ITBs.aspx", (err, response, body) ->
@@ -52,7 +50,8 @@ module.exports = (opts, done) ->
         cb(null, rfps)
         )  
 
-  getRfpDetails = (browser, body, results) ->
+  getRfpDetails = (browser, body, results, page) ->
+    page = 1 || page
     rfps = results || []
     $ = cheerio.load body  
     # XXX: this is super janky and i'm embarrassed by it but it works
@@ -88,7 +87,7 @@ module.exports = (opts, done) ->
         .wait()
         .then( () ->
           assert.ok(browser.success)
-          getRfpDetails(browser, browser.html(), rfps)
+          getRfpDetails(browser, browser.html(), rfps, page)
           )
     else
       rfps = _.uniq(rfps, (item) -> item.id)
