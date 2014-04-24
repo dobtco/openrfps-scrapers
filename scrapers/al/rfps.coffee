@@ -50,9 +50,9 @@ module.exports = (opts, done) ->
         cb(null, rfps)
         )  
 
-  getRfpDetails = (browser, body, results, page) ->
-    page = page || 1
-    rfps = results || []
+  getRfpDetails = (browser, body, results = [], starting_page = 1) ->
+    page = starting_page 
+    rfps = results 
     $ = cheerio.load body  
     # XXX: this is super janky and i'm embarrassed by it but it works
     rows = $('table[id=MyContent_GridViewRFP]').find('tr').length
