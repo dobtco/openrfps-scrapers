@@ -1,4 +1,5 @@
 request = require 'request'
+async = require 'async'
 assert = require 'assert'
 cheerio = require 'cheerio'
 zombie = require 'zombie'
@@ -7,14 +8,12 @@ require 'colors'
 
 module.exports = (opts, done) ->
 
-  itbs = []
-  rfps = []
   page = 1
 
   getItbs = (cb) ->
+    itbs = []
     request.get "http://www.purchasing.alabama.gov/txt/ITBs.aspx", (err, response, body) ->
       $ = cheerio.load body
-
       $('span[id=ctl00_ContentPlaceHolder2_Label1]').find('tr').each (i, el) ->
         if i != 0
           item = {}
@@ -32,9 +31,7 @@ module.exports = (opts, done) ->
               when 3
                 item.response_due_at = $(@).text().trim()
           itbs.push item
-      cb()
-
-      
+      cb(null, itbs)
 
   getRfps = (cb) ->
     browser = new zombie()
@@ -45,17 +42,18 @@ module.exports = (opts, done) ->
         browser.select("ctl00$MyContent$ddlStatus", "Open")
         )
       .then( () ->
-        return browser.pressButton("Search")
+        browser.pressButton("Search")
         )
       .then( () ->
         assert.ok(browser.success)
-        getRfpDetails(browser, browser.html())
+        rfps = getRfpDetails(browser, browser.html())
         )
-      .then( () ->
-        cb()
+      .then( (rfps) ->
+        cb(null, rfps)
         )  
 
-  getRfpDetails = (browser, body) ->
+  getRfpDetails = (browser, body, results) ->
+    rfps = results || []
     $ = cheerio.load body  
     # XXX: this is super janky and i'm embarrassed by it but it works
     rows = $('table[id=MyContent_GridViewRFP]').find('tr').length
@@ -90,15 +88,19 @@ module.exports = (opts, done) ->
         .wait()
         .then( () ->
           assert.ok(browser.success)
-          getRfpDetails(browser, browser.html())
+          getRfpDetails(browser, browser.html(), rfps)
           )
     else
       rfps = _.uniq(rfps, (item) -> item.id)
       return rfps
 
-  getRfps ->
-    console.log "got #{rfps.length} rfps!".green
-    getItbs ->
-      console.log "got #{itbs.length} itbs!".green
-      solicitations = _.union(rfps, itbs)
-      done solicitations
+  async.parallel([
+    (callback) ->
+      getRfps(callback)
+    (callback) ->
+      getItbs(callback)
+  ], (err, results) ->
+    solicitations = _.union(results[0],results[1])
+    console.log "got #{results[0].length} rfps and #{results[1].length} itbs".green
+    done solicitations
+  )      
