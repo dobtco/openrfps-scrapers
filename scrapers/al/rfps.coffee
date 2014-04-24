@@ -51,7 +51,7 @@ module.exports = (opts, done) ->
         )  
 
   getRfpDetails = (browser, body, results, page) ->
-    page = 1 || page
+    page = page || 1
     rfps = results || []
     $ = cheerio.load body  
     # XXX: this is super janky and i'm embarrassed by it but it works
