@@ -4,7 +4,7 @@ The Open RFPs Project is modeled after Sunlight Labs' [OpenStates](https://githu
 
 ### Community
 
-*IRC:* Find us on #openrfps on [Freenode](http://freenode.net/).
+**IRC:** Find us on #openrfps on [Freenode](http://freenode.net/).
 
 ## Contribution guidelines
 The first thing to contribute is the location of the best starting page in your state for someone to create a scraper. You can add that to [the wiki page](https://github.com/dobtco/openrfps-scrapers/wiki/List-of-Procurement-Websites).
