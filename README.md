@@ -58,7 +58,7 @@ We've built a lightweight command-line interface to help you run and test scrape
 
 While starting to develop a scraper, you'll probably want to use a command like:
 
-    bin/openrfps run scrapers/ga/rfps.coffee
+    bin/run-scraper scrapers/ga/rfps.coffee
 
 This command will:
 
@@ -66,17 +66,15 @@ This command will:
 2. Cache its results to `scrapers/ga/rfps.json`.
 3. Pretty-print the returned JSON.
 
-> There is a [known issue](https://github.com/visionmedia/commander.js/pull/173) with running these commands on Windows. You'll need to use `openrfps-run` instead of `openrfps run`.
-
 Once you're confident that your results are shaping up, try running them against our [test suite](https://github.com/dobtco/openrfps-scrapers/blob/master/bin/openrfps-test):
 
-    bin/openrfps test scrapers/ga/rfps.coffee
+    bin/test-scraper scrapers/ga/rfps.coffee
 
 By default, the `test` command will use the cached `.json` file that we downloaded earlier.
 
 To run both the scraper and the tests all with one command:
 
-    bin/openrfps test scrapers/ga/rfps.coffee --force
+    bin/test-scraper scrapers/ga/rfps.coffee --force
 
 ### What about the schema?
 See [OUTPUT.md](https://github.com/dobtco/openrfps-scrapers/blob/master/OUTPUT.md) for the current schema.

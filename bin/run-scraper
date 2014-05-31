@@ -21,4 +21,3 @@ require('./utils/run_scraper') program, (parsedJson) ->
 
   if parsedJson.length > PRINT_MAX
     console.log "#{parsedJson.length - PRINT_MAX} RFPs not printed for length considerations".yellow
-

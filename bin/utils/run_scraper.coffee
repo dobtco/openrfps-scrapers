@@ -22,7 +22,6 @@ module.exports = (program, cb) ->
   if !program.force && fs.existsSync(jsonPath)
     return cb(JSON.parse(fs.readFileSync(jsonPath)))
 
-
   try
     opts =
       limit: program.limit
