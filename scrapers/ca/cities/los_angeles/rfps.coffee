@@ -27,7 +27,7 @@ module.exports = (opts, done) ->
   request.get CONFIG['index_url'], (error, response, body) ->
     extractPageUrls(body)
     .then (pageUrls) ->
-      retrievePageBodies pageUrls
+      retrievePageBodies(pageUrls)
     .then (pageBodies) ->
       pageBodies.push(body)
       extractRfps pageBodies
@@ -52,11 +52,12 @@ module.exports = (opts, done) ->
   retrievePageBodies = (pageUrls) ->
     d = Q.defer()
 
-    bodies = pageUrls.map (pageUrl) ->
+    async.mapSeries pageUrls, (pageUrl, callback) ->
       request.get pageUrl, (error, response, body) ->
-        body
+        callback(null, body)
+    , (err, results) ->
+      d.resolve results
 
-    d.resolve bodies
     d.promise
 
   extractRfps = (pageBodies, rfps) ->
