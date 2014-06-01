@@ -3,6 +3,7 @@ cheerio = require 'cheerio'
 async = require 'async'
 YAML = require 'libyaml'
 _ = require 'underscore'
+Q = require 'q'
 require 'colors'
 
 BASIC_PARAMS =
@@ -22,26 +23,61 @@ BASIC_PARAMS =
 
 module.exports = (opts, done) ->
   CONFIG = YAML.readFileSync(__dirname + '/config.yml')[0]
-  rfps = []
 
   request.get CONFIG['index_url'], (error, response, body) ->
+    extractPageUrls(body)
+    .then (pageUrls) ->
+      retrievePageBodies pageUrls
+    .then (pageBodies) ->
+      pageBodies.push(body)
+      extractRfps pageBodies
+    .then (rfps) ->
+      console.log "Retrieved #{rfps.length} links to RFPs".green
+
+      async.eachLimit rfps, 5, rfpDetails, (err) ->
+        console.log(err.red) if err
+        done rfps
+
+  extractPageUrls = (body) ->
+    d = Q.defer()
+    urls = []
     $ = cheerio.load body
-    links = $('table.printtable tr').find('a').filter (i, el) ->
-      /opportunity_view/.test($(this).attr('href'))
 
-    links.each (i, el) ->
-      rfps.push {
-        url: CONFIG['url'] + $(this).attr('href')
-        title: $(this).text().trim()
-      }
+    $('table.pagecounter a').each (i, em) ->
+      urls.push $(this).attr('href')
 
-    console.log "Retrieved #{rfps.length} links to RFPs".green
+    d.resolve urls
+    d.promise
 
-    async.eachLimit rfps, 5, getRfpDetails, (err) ->
-      console.log(err.red) if err
-      done rfps
+  retrievePageBodies = (pageUrls) ->
+    d = Q.defer()
 
-  getRfpDetails = (rfp, callback) ->
+    bodies = pageUrls.map (pageUrl) ->
+      request.get pageUrl, (error, response, body) ->
+        body
+
+    d.resolve bodies
+    d.promise
+
+  extractRfps = (pageBodies, rfps) ->
+    d = Q.defer()
+    rfps = []
+
+    pageBodies.map (pageBody) ->
+      $ = cheerio.load pageBody
+      links = $('table.printtable tr a').filter (i, el) ->
+        /opportunity_view/.test($(this).attr('href'))
+
+      links.each (i, el) ->
+        rfps.push {
+          url: CONFIG['url'] + $(this).attr('href')
+          title: $(this).text().trim()
+        }
+
+    d.resolve rfps
+    d.promise
+
+  rfpDetails = (rfp, callback) ->
     request.get rfp.url, (err, response, body) ->
       console.log rfp.url
       $ = cheerio.load body
