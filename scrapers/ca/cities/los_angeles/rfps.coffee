@@ -10,7 +10,6 @@ BASIC_PARAMS =
   id: 'BAVN ID:'
   bid_method: 'Bid Method:'
   category: 'Category:'
-  type: 'Type:'
   description: 'Description:'
   status: 'Status:'
   posted: 'Posted:'
@@ -66,21 +65,27 @@ module.exports = (opts, done) ->
 
     pageBodies.map (pageBody) ->
       $ = cheerio.load pageBody
-      links = $('table.printtable tr a').filter (i, el) ->
-        /opportunity_view/.test($(this).attr('href'))
+      rows = $('table.printtable tr')
 
-      links.each (i, el) ->
-        rfps.push {
-          url: CONFIG['url'] + $(this).attr('href')
-          title: $(this).text().trim()
-        }
+      rows.each (i, el) ->
+        row = $(this)
+        rfp = {}
+
+        links = row.find('a').each (i, el) ->
+          url =  $(this).attr('href')
+          isRfpUrl = /opportunity_view/.test url
+
+          if isRfpUrl
+            rfp.url = CONFIG['url'] + $(this).attr('href')
+            rfp.title =  $(this).text().trim()
+            rfp.type = row.find('td').eq(4).text().trim()
+            rfps.push rfp
 
     d.resolve rfps
     d.promise
 
   rfpDetails = (rfp, callback) ->
     request.get rfp.url, (err, response, body) ->
-      console.log rfp.url
       $ = cheerio.load body
 
       for k, v of BASIC_PARAMS
