@@ -5,10 +5,20 @@ var cheerio = require("cheerio"),
 var START_URL = "http://www.arkansas.gov/dfa/procurement/bids/index.php",
     BASE_URL = "http://www.arkansas.gov/dfa/procurement/bids/";
 
+var FIELDS = {
+    "Bid Number:": "id",
+    "Agency:": "department_name",
+    "Description:": "title"
+}
 
 module.exports = function(opts, done) {
     getSolicitationUrls(START_URL, function(links) {
-        console.log(links);
+        //console.log(links);
+        links.forEach(function(link){
+            getSolicitationDetails(link, function(table) {
+                //console.log(table);
+            });
+        });
     });
 }
 
@@ -28,3 +38,18 @@ function getSolicitationUrls(startUrl, cb) {
         }
     });
 }
+
+function getSolicitationDetails(url, cb){
+    request.get(url, function(error, response, html) {
+        var $ = cheerio.load(html);
+        $('#mainContent table tr td[align="center"] div[align="center"] table td').each(function() {
+                event = $(this).text().trim();
+                    if (event in FIELDS) {
+                        console.log(event);
+                        console.log($(this).next().text().trim());
+                    }
+            });
+    });
+}
+
+
