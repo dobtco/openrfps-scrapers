@@ -1,6 +1,7 @@
 var cheerio = require("cheerio"),
     request = require("request"),
-    _ = require("underscore");
+    _ = require("underscore"),
+    async = require("async");
 
 var START_URL = "http://www.arkansas.gov/dfa/procurement/bids/index.php",
     BASE_URL = "http://www.arkansas.gov/dfa/procurement/bids/";
@@ -8,16 +9,18 @@ var START_URL = "http://www.arkansas.gov/dfa/procurement/bids/index.php",
 var FIELDS = {
     "Bid Number:": "id",
     "Agency:": "department_name",
-    "Description:": "title"
+    "Description:": "title",
+    "Buyer's Email:": "contact_email"
 }
 
 module.exports = function(opts, done) {
     getSolicitationUrls(START_URL, function(links) {
-        //console.log(links);
-        links.forEach(function(link){
-            getSolicitationDetails(link, function(table) {
-                //console.log(table);
-            });
+        //copied from illinois scraper example
+        links = opts.limit > 0 ? _.first(links, opts.limit): links;
+        async.mapLimit(links, 5, getSolicitationDetails, function(error, results) {
+        if(error) {throw new Error(error); }
+        console.log("Done scraping!");
+        done(results);
         });
     });
 }
@@ -40,15 +43,16 @@ function getSolicitationUrls(startUrl, cb) {
 }
 
 function getSolicitationDetails(url, cb){
+    var json = {"id": "","html_url": url, "type": "RFP"};
     request.get(url, function(error, response, html) {
         var $ = cheerio.load(html);
         $('#mainContent table tr td[align="center"] div[align="center"] table td').each(function() {
                 event = $(this).text().trim();
-                    if (event in FIELDS) {
-                        console.log(event);
-                        console.log($(this).next().text().trim());
-                    }
-            });
+                if (event in FIELDS) {
+                    json[FIELDS[event]] = $(this).next().text().trim();
+                }
+        });
+    cb(null, json);
     });
 }
 
