@@ -1,3 +1,30 @@
+###
+Schema items not provided are marked x below:
+	id 	A unique identifier string
+ 	type 	The type of posting, e.g. RFP or RFI. 
+	html_url 	A link to the RFP page
+	title 	Title
+ 	department_name 	Department name
+ x	address 	Full address related to this RFP (will be normalized later)
+ 	awarded 	Boolean - has the RFP been awarded? (Leave blank for unknown)
+ x	canceled 	Boolean - has the RFP been canceled? (Leave blank for unknown)
+ 	contact_name 	Contact name
+ x	contact_phone 	Contact phone
+ x	contact_fax 	Contact fax
+ 	contact_email 	Contact email
+ 	created_at 	When was this RFP posted?
+ x	updated_at 	When was this RFP revised?
+ x	responses_open_at 	When do responses open?
+ 	responses_due_at 	When are responses due?
+ x	description 	Text/HTML description
+ x	prebid_conferences 	Array of Conference objects
+ 	downloads 	Array of file URLs
+ x	nigp_codes 	Array of NIGP codes
+ 	commodity 	String representing the commodity (we'll try to match it to a code)
+ x	estimate 	Estimated cost of the contract
+ x	duration 	Duration of contract
+###
+
 # Require the necessary modules.
 request = require 'request'
 cheerio = require 'cheerio'
@@ -6,27 +33,6 @@ _ = require 'underscore'
 require 'colors'
 
 # Set up some constants that we'll use later.
-FILTER_PARAMS =
-  track: ''
-  bidResponse: 'all'
-  theType: 'OPEN'
-  govType: 'state'
-  theAgency: 'all'
-  theWord: ''
-  theSort: 'BID NUMBER'
-
-# Schema items not provided:
-#  address            Full address related to this RFP (will be normalized later)
-#  canceled           Boolean - has the RFP been canceled? (Leave blank for unknown)
-#  contact_phone      Contact phone
-#  contact_fax        Contact fax
-#  updated_at         When was this RFP revised?
-#  responses_open_at  When do responses open?
-#  description 	      Text/HTML description
-#  prebid_conferences Array of Conference objects
-#  nigp_codes         Array of NIGP codes
-#  estimate           Estimated cost of the contract
-#  duration           Duration of contract
 
 # Could source any of the following from detail by uncommenting the relevant line
 # Marked with ** if conceptually available from detail screen but not from list
@@ -78,6 +84,9 @@ module.exports = (opts, done) ->
   # Set up an empty array for our RFPs.
   rfps = [];
 
+  unless opts.limit
+    opts.limit = 9999
+
   wanturl = BASE_URL+WANT_URL
 
   # Send a GET request to the site's endpoint
@@ -85,7 +94,7 @@ module.exports = (opts, done) ->
 
     # Load the resulting HTML into Cheerio
     $ = cheerio.load html
-    $('body').find('table').eq(3).find('tr').each( (i, el) ->
+    $('body').find('table').eq(3).find('tr').slice(2,opts.limit+2).each( (i, el) ->
       gobj =
       ( _.object(LIST_PARAMS,
         $(@).find('td').eq(k).text().trim() for k in WANTED_COLS))
@@ -107,8 +116,6 @@ module.exports = (opts, done) ->
       unless gobj.type
         gobj.type = ''
       rfps.push gobj )
-
-    rfps = _.last(rfps, rfps.length-2)  # first two rows contain headers
 
     async.eachLimit rfps, ASYNC_RQ_MAX, getRfpDetails, (err) ->
       console.log(err.red) if err
